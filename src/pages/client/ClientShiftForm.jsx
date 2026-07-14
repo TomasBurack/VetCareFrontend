@@ -33,7 +33,7 @@ export function ClientShiftForm() {
     setErrors([]);
     setSubmitting(true);
     try {
-      const dateShift = date && time ? new Date(`${date}T${time}`).toISOString() : null;
+      const dateShift = date && time ? `${date}T${time}:00-03:00` : null;
       await shiftApi.create({ petId, dateShift, description, enrollment });
       navigate('/mis-turnos');
     } catch (err) {

@@ -4,6 +4,7 @@ import { ApiError } from '../../api/client';
 import { ErrorBanner } from '../../components/ErrorBanner';
 import { Badge } from '../../components/Badge';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
+import { formatShiftDate } from '../../utils/date';
 
 const STATUS_STRIPE = {
   pendant: 'var(--amber)',
@@ -87,7 +88,7 @@ export function AdminShifts() {
               <div>
                 <div style={{ fontWeight: 600, fontSize: '.95rem' }}>{shift.petName}</div>
                 <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)', marginTop: '.2rem' }}>
-                  {shift.veterinarianName} · {shift.dateShift}
+                  {shift.veterinarianName} · {formatShiftDate(shift.dateShift)}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>

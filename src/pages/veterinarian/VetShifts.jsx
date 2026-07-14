@@ -5,6 +5,7 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Badge } from '../../components/Badge';
 import { EmptyState } from '../../components/EmptyState';
 import { CalendarDays } from 'lucide-react';
+import { formatShiftDate } from '../../utils/date';
 
 const STATUS_STRIPE = {
   pendant: 'var(--amber)',
@@ -82,7 +83,7 @@ export function VetShifts() {
               <div>
                 <div style={{ fontWeight: 600, fontSize: '.95rem' }}>{shift.petName}</div>
                 <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)', marginTop: '.2rem' }}>
-                  {shift.description} · {shift.dateShift}
+                  {shift.description} · {formatShiftDate(shift.dateShift)}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>

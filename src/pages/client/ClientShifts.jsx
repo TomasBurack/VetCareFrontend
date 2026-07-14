@@ -7,6 +7,7 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Button } from '../../components/Button';
 import { Badge } from '../../components/Badge';
 import { EmptyState } from '../../components/EmptyState';
+import { formatShiftDate } from '../../utils/date';
 
 const STATUS_STRIPE = {
   pendant: 'var(--amber)',
@@ -73,7 +74,7 @@ export function ClientShifts() {
                   {shift.petName} · {shift.description}
                 </div>
                 <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)', marginTop: '.2rem' }}>
-                  {shift.dateShift} · {shift.veterinarianName}
+                  {formatShiftDate(shift.dateShift)} · {shift.veterinarianName}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
