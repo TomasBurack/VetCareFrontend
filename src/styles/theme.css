@@ -1,0 +1,31 @@
+:root {
+  --bg: #fdf6fb;
+  --bg-alt: #f6ebfb;
+  --ink: #4a4458;
+  --primary: #a78bfa;
+  --primary-dark: #8b6fe0;
+  --terracotta: #f5a3b7;
+  --amber: #fbd38d;
+  --sage-muted: #b7b0c9;
+  --card: #ffffff;
+  --border: #ece0f5;
+
+  --font-display: 'Poppins', sans-serif;
+  --font-body: 'Poppins', sans-serif;
+  --font-mono: 'Poppins', sans-serif;
+
+  --radius: 0.75rem;
+}
+
+:root[data-theme='dark'] {
+  --bg: #241f33;
+  --bg-alt: #2d2740;
+  --ink: #eee8f7;
+  --primary: #c4b0fc;
+  --primary-dark: #a78bfa;
+  --terracotta: #f5a3b7;
+  --amber: #fbd38d;
+  --sage-muted: #8a80a6;
+  --card: #2d2740;
+  --border: #3e3654;
+}
