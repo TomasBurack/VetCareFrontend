@@ -9,7 +9,6 @@ import { Button } from './Button';
 const STEP = {
   IDLE: 'idle',
   ENROLLING: 'enrolling',
-  SHOWING_RECOVERY_CODES: 'showing_recovery_codes',
   DISABLING: 'disabling',
 };
 
@@ -19,7 +18,6 @@ export function TwoFactorSettings() {
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
-  const [recoveryCodes, setRecoveryCodes] = useState([]);
   const [errors, setErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -51,22 +49,16 @@ export function TwoFactorSettings() {
     setErrors([]);
     setSubmitting(true);
     try {
-      const { recoveryCodes: codes } = await authApi.confirmTwoFactor(code);
-      setRecoveryCodes(codes);
-      setStep(STEP.SHOWING_RECOVERY_CODES);
+      await authApi.confirmTwoFactor(code);
       setCode('');
+      setStep(STEP.IDLE);
+      setQrDataUrl(null);
+      refreshStatus();
     } catch (err) {
       setErrors(err instanceof ApiError ? err.messages : ['Código inválido. Intentá de nuevo.']);
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function handleFinishEnrollment() {
-    setStep(STEP.IDLE);
-    setQrDataUrl(null);
-    setRecoveryCodes([]);
-    refreshStatus();
   }
 
   async function handleDisable(e) {
@@ -85,41 +77,8 @@ export function TwoFactorSettings() {
     }
   }
 
-  async function handleRegenerateRecoveryCodes() {
-    setErrors([]);
-    setSubmitting(true);
-    try {
-      const { recoveryCodes: codes } = await authApi.regenerateRecoveryCodes();
-      setRecoveryCodes(codes);
-      setStep(STEP.SHOWING_RECOVERY_CODES);
-    } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudieron regenerar los códigos.']);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   if (twoFactorEnabled === null) {
     return null;
-  }
-
-  if (step === STEP.SHOWING_RECOVERY_CODES) {
-    return (
-      <div className="danger-zone">
-        <div className="t">Guardá tus códigos de recuperación</div>
-        <div className="sub">
-          Cada código sirve una sola vez y te permite ingresar si perdés acceso a tu app de autenticación. No se van a
-          volver a mostrar.
-        </div>
-        <ErrorBanner messages={errors} />
-        <ul style={{ fontFamily: 'var(--font-mono)', lineHeight: 1.8 }}>
-          {recoveryCodes.map((rc) => (
-            <li key={rc}>{rc}</li>
-          ))}
-        </ul>
-        <Button onClick={handleFinishEnrollment}>Ya los guardé</Button>
-      </div>
-    );
   }
 
   if (step === STEP.ENROLLING) {
@@ -210,14 +169,9 @@ export function TwoFactorSettings() {
       <ErrorBanner messages={errors} />
       <div style={{ display: 'flex', gap: '.6rem' }}>
         {twoFactorEnabled ? (
-          <>
-            <Button variant="secondary" onClick={handleRegenerateRecoveryCodes} disabled={submitting}>
-              Regenerar códigos de recuperación
-            </Button>
-            <Button variant="danger" onClick={() => setStep(STEP.DISABLING)}>
-              Desactivar
-            </Button>
-          </>
+          <Button variant="danger" onClick={() => setStep(STEP.DISABLING)}>
+            Desactivar
+          </Button>
         ) : (
           <Button onClick={handleStartEnrollment} disabled={submitting}>
             {submitting ? 'Generando…' : 'Activar'}

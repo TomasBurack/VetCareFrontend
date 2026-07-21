@@ -14,7 +14,6 @@ export const authApi = {
   verifyTwoFactor: (pendingToken, code) =>
     api.post('/api/auth/2fa/verify', { pendingToken, code }),
   disableTwoFactor: (password) => api.post('/api/auth/2fa/disable', { password }),
-  regenerateRecoveryCodes: () => api.post('/api/auth/2fa/recovery-codes/regenerate'),
 };
 
 export const clientApi = {
