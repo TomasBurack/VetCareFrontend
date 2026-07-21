@@ -14,6 +14,7 @@ function readStoredSession() {
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(readStoredSession);
+  const [isResolvingSession, setIsResolvingSession] = useState(true);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
@@ -22,9 +23,19 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
+  useEffect(() => {
+    authApi
+      .me()
+      .then((result) => persistSession(result))
+      .catch(() => {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        setSession(null);
+      })
+      .finally(() => setIsResolvingSession(false));
+  }, []);
+
   function persistSession(authResponse) {
     const next = {
-      token: authResponse.token,
       role: authResponse.role,
       userId: authResponse.userId,
       email: authResponse.email,
@@ -36,6 +47,14 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     const result = await authApi.signIn(email, password);
+    if (result.twoFactorRequired) {
+      return { twoFactorRequired: true, pendingToken: result.pendingTwoFactorToken };
+    }
+    return persistSession(result);
+  }
+
+  async function verifyTwoFactor(pendingToken, code) {
+    const result = await authApi.verifyTwoFactor(pendingToken, code);
     return persistSession(result);
   }
 
@@ -44,9 +63,13 @@ export function AuthProvider({ children }) {
     return persistSession(result);
   }
 
-  function logout() {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    setSession(null);
+  async function logout() {
+    try {
+      await authApi.signOut();
+    } finally {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      setSession(null);
+    }
   }
 
   async function requestPasswordReset(email) {
@@ -60,8 +83,10 @@ export function AuthProvider({ children }) {
   const value = {
     session,
     isAuthenticated: !!session,
+    isResolvingSession,
     role: session?.role ?? null,
     login,
+    verifyTwoFactor,
     register,
     logout,
     requestPasswordReset,

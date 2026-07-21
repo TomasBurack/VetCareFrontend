@@ -7,6 +7,7 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
+import { TwoFactorSettings } from '../../components/TwoFactorSettings';
 
 export function AdminProfile() {
   const { logout } = useAuth();
@@ -78,6 +79,7 @@ export function AdminProfile() {
             </Button>
           </div>
         </form>
+        <TwoFactorSettings />
         <div className="danger-zone">
           <div className="t">Eliminar cuenta</div>
           <div className="sub">Solo un sysadmin puede recrear una cuenta de administrador eliminada.</div>

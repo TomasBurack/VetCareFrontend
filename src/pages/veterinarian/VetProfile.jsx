@@ -7,6 +7,7 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
+import { TwoFactorSettings } from '../../components/TwoFactorSettings';
 import { SPECIALITIES } from '../../constants/speciality';
 
 export function VetProfile() {
@@ -102,6 +103,7 @@ export function VetProfile() {
             </Button>
           </div>
         </form>
+        <TwoFactorSettings />
         <div className="danger-zone">
           <div className="t">Eliminar cuenta</div>
           <div className="sub">Perderás el acceso a tus turnos asignados. Solo un administrador puede recrear tu cuenta.</div>

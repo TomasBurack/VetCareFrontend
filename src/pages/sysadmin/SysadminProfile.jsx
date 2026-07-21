@@ -5,6 +5,7 @@ import { FormCard } from '../../components/FormCard';
 import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
+import { TwoFactorSettings } from '../../components/TwoFactorSettings';
 
 export function SysadminProfile() {
   const [form, setForm] = useState(null);
@@ -64,6 +65,7 @@ export function SysadminProfile() {
             </Button>
           </div>
         </form>
+        <TwoFactorSettings />
       </FormCard>
     </>
   );

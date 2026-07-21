@@ -1,11 +1,20 @@
 import { api } from './client';
 
 export const authApi = {
-  signIn: (email, password) => api.post('/api/auth/signin', { email, password }, { auth: false }),
-  signUp: (data) => api.post('/api/auth/signup', data, { auth: false }),
-  forgotPassword: (email) => api.post('/api/auth/forgost-post', { email }, { auth: false }),
+  signIn: (email, password) => api.post('/api/auth/signin', { email, password }),
+  signUp: (data) => api.post('/api/auth/signup', data),
+  signOut: () => api.post('/api/auth/signout'),
+  me: () => api.get('/api/auth/me'),
+  forgotPassword: (email) => api.post('/api/auth/forgost-post', { email }),
   resetPassword: (token, newPassword) =>
-    api.post('/api/auth/reset-password', { token, newPassword }, { auth: false }),
+    api.post('/api/auth/reset-password', { token, newPassword }),
+
+  enableTwoFactor: () => api.post('/api/auth/2fa/enable'),
+  confirmTwoFactor: (code) => api.post('/api/auth/2fa/confirm', { code }),
+  verifyTwoFactor: (pendingToken, code) =>
+    api.post('/api/auth/2fa/verify', { pendingToken, code }),
+  disableTwoFactor: (password) => api.post('/api/auth/2fa/disable', { password }),
+  regenerateRecoveryCodes: () => api.post('/api/auth/2fa/recovery-codes/regenerate'),
 };
 
 export const clientApi = {
