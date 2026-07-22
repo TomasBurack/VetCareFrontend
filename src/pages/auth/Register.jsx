@@ -7,6 +7,7 @@ import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
 import { ROLE_HOME } from '../../context/roleHome';
 import { ApiError } from '../../api/client';
+import { useToast } from '../../context/useToast';
 
 const EMPTY_FORM = {
   firstName: '',
@@ -20,6 +21,7 @@ const EMPTY_FORM = {
 export function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState([]);
@@ -35,9 +37,12 @@ export function Register() {
     setSubmitting(true);
     try {
       const session = await register(form);
+      toast.success('Cuenta creada correctamente.');
       navigate(ROLE_HOME[session.role] ?? '/', { replace: true });
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo crear la cuenta. Intentá de nuevo.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo crear la cuenta. Intentá de nuevo.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }

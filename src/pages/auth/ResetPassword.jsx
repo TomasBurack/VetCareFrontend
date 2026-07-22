@@ -6,9 +6,11 @@ import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
 import { ApiError } from '../../api/client';
+import { useToast } from '../../context/useToast';
 
 export function ResetPassword() {
   const { resetPassword } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
@@ -28,9 +30,12 @@ export function ResetPassword() {
     setSubmitting(true);
     try {
       await resetPassword(token, newPassword);
+      toast.success('Contraseña actualizada correctamente.');
       navigate('/login', { replace: true });
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo actualizar la contraseña.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo actualizar la contraseña.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }

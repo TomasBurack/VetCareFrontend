@@ -83,6 +83,100 @@ textarea.f:focus {
   margin-top: -0.75rem;
   margin-bottom: 1rem;
 }
+.combobox {
+  position: relative;
+}
+.combobox-list {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% - 1rem);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+.combobox-list li {
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+.combobox-list li:hover,
+.combobox-list li[aria-selected='true'] {
+  background: var(--bg-alt);
+}
+
+.datepicker {
+  position: relative;
+}
+.datepicker input {
+  cursor: pointer;
+}
+.datepicker-panel {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% - 0.6rem);
+  left: 0;
+  width: 260px;
+  padding: 0.8rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+.datepicker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.datepicker-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.15rem;
+  text-align: center;
+}
+.datepicker-weekdays {
+  margin-bottom: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--sage-muted);
+}
+.datepicker-day {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  padding: 0.4rem 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+.datepicker-day:hover:not(:disabled) {
+  background: var(--bg-alt);
+}
+.datepicker-day.selected {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+.datepicker-day:disabled {
+  color: var(--sage-muted);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 /* ---------- buttons ---------- */
 .btn {
@@ -151,7 +245,6 @@ textarea.f:focus {
   border: 1px solid var(--border);
   border-radius: 14px;
   position: relative;
-  overflow: hidden;
 }
 .ficha::before {
   content: '';
@@ -160,6 +253,7 @@ textarea.f:focus {
   left: 0;
   right: 0;
   height: 4px;
+  border-radius: 14px 14px 0 0;
   background: var(--stripe, var(--primary));
 }
 .ficha-pad {
@@ -377,44 +471,82 @@ h1.page-title {
   border-color: var(--primary);
 }
 
-/* ---------- entity rows ---------- */
-.entity-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.2rem;
+/* ---------- shifts table ---------- */
+.shifts-table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow-x: auto;
 }
-.entity-card .avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.05rem;
-  color: #fff;
-  flex-shrink: 0;
-  background: var(--primary);
+.shifts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
 }
-.entity-card .meta {
-  flex: 1;
-  min-width: 0;
+.shifts-table th,
+.shifts-table td {
+  padding: 0.85rem 1.1rem;
+  text-align: left;
+  white-space: nowrap;
 }
-.entity-card .meta .name {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-.entity-card .meta .sub {
-  font-size: 0.78rem;
+.shifts-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--sage-muted);
-  font-family: var(--font-mono);
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
 }
-.entity-card .actions {
-  display: flex;
-  gap: 0.4rem;
-  flex-shrink: 0;
+.shifts-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.shifts-table th.sortable:hover {
+  color: var(--primary);
+}
+.sort-arrow {
+  display: inline-block;
+  margin-left: 0.15rem;
+}
+.shifts-table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+.shifts-table tbody tr:last-child {
+  border-bottom: none;
+}
+.shifts-table tbody tr:hover {
+  background: var(--bg-alt);
+}
+.shifts-table td {
+  color: var(--ink);
+}
+@media (max-width: 720px) {
+  .shifts-table thead {
+    display: none;
+  }
+  .shifts-table,
+  .shifts-table tbody,
+  .shifts-table tr,
+  .shifts-table td {
+    display: block;
+    width: 100%;
+  }
+  .shifts-table tr {
+    padding: 0.9rem 1.1rem;
+  }
+  .shifts-table td {
+    white-space: normal;
+    padding: 0.2rem 0;
+    border: none;
+  }
+  .shifts-table td::before {
+    content: attr(data-label) ': ';
+    font-weight: 700;
+    color: var(--sage-muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 }
 
 /* ---------- error banner ---------- */
@@ -430,6 +562,47 @@ h1.page-title {
 .error-banner ul {
   margin: 0.25rem 0 0;
   padding-left: 1.1rem;
+}
+
+/* ---------- toasts ---------- */
+.toast-container {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.2rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: min(360px, calc(100vw - 2.4rem));
+}
+.toast {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  animation: toast-in 0.2s ease-out;
+}
+.toast-success {
+  background: color-mix(in srgb, var(--primary) 16%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--border));
+  color: var(--ink);
+}
+.toast-error {
+  background: color-mix(in srgb, var(--terracotta) 16%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--terracotta) 45%, var(--border));
+  color: var(--ink);
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ---------- danger zone ---------- */
@@ -517,6 +690,16 @@ h1.page-title {
   display: flex;
   justify-content: flex-end;
   gap: 0.6rem;
+}
+
+.truncated-text {
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--sage-muted);
+}
+.truncated-text:hover {
+  color: var(--primary);
 }
 
 .section-title {

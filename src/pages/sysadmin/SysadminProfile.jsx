@@ -6,8 +6,10 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { TwoFactorSettings } from '../../components/TwoFactorSettings';
+import { useToast } from '../../context/useToast';
 
 export function SysadminProfile() {
+  const toast = useToast();
   const [form, setForm] = useState(null);
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -34,8 +36,11 @@ export function SysadminProfile() {
     setSaving(true);
     try {
       await sysadminApi.updateMyUser(form);
+      toast.success('Cambios guardados correctamente.');
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSaving(false);
     }

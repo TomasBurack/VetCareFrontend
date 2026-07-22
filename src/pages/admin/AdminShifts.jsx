@@ -2,15 +2,9 @@ import { useEffect, useState } from 'react';
 import { shiftApi } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import { ErrorBanner } from '../../components/ErrorBanner';
-import { Badge } from '../../components/Badge';
+import { ShiftsTable } from '../../components/ShiftsTable';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
-import { formatShiftDate } from '../../utils/date';
-
-const STATUS_STRIPE = {
-  pendant: 'var(--amber)',
-  served: 'var(--primary)',
-  canceled: 'var(--terracotta)',
-};
+import { useToast } from '../../context/useToast';
 
 const TABS = [
   { key: 'all', label: 'Todos' },
@@ -20,6 +14,7 @@ const TABS = [
 ];
 
 export function AdminShifts() {
+  const toast = useToast();
   const [shifts, setShifts] = useState([]);
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
@@ -44,9 +39,12 @@ export function AdminShifts() {
     try {
       await shiftApi.removeAsAdmin(pendingDelete.id);
       setPendingDelete(null);
+      toast.success('Turno eliminado correctamente.');
       load();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo eliminar el turno.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar el turno.'];
+      setErrors(messages);
+      toast.error(messages[0]);
       setPendingDelete(null);
     }
   }
@@ -80,29 +78,17 @@ export function AdminShifts() {
         />
       </div>
 
-      {filtered.map((shift) => {
-        const status = shift.status?.toLowerCase();
-        return (
-          <div className="ficha" style={{ '--stripe': STATUS_STRIPE[status], marginBottom: '.8rem' }} key={shift.id}>
-            <div className="ficha-pad" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: '.95rem' }}>{shift.petName}</div>
-                <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)', marginTop: '.2rem' }}>
-                  {shift.veterinarianName} · {formatShiftDate(shift.dateShift)}
-                </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
-                <Badge status={status} />
-                {status === 'pendant' && (
-                  <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(shift)}>
-                    ✕
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+      <ShiftsTable
+        shifts={filtered}
+        showVeterinarian
+        renderActions={(shift) =>
+          shift.status?.toLowerCase() === 'pendant' && (
+            <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(shift)}>
+              ✕
+            </button>
+          )
+        }
+      />
 
       {pendingDelete && (
         <ConfirmDeleteOverlay

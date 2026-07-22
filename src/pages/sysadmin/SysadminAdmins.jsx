@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { sysadminApi } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import { ErrorBanner } from '../../components/ErrorBanner';
-import { EntityRow } from '../../components/EntityRow';
+import { EntityTable } from '../../components/EntityTable';
 import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { Field } from '../../components/Field';
 import { FormCard } from '../../components/FormCard';
+import { useToast } from '../../context/useToast';
 
 const EMPTY_FORM = { firstName: '', lastName: '', dni: '', phoneNumber: '', email: '', password: '' };
 
 export function SysadminAdmins() {
+  const toast = useToast();
   const [admins, setAdmins] = useState([]);
   const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
@@ -44,9 +46,12 @@ export function SysadminAdmins() {
       await sysadminApi.create(form);
       setForm(EMPTY_FORM);
       setCreating(false);
+      toast.success('Administrador creado correctamente.');
       load();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo crear el administrador.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo crear el administrador.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }
@@ -56,9 +61,12 @@ export function SysadminAdmins() {
     try {
       await sysadminApi.remove(pendingDelete.id);
       setPendingDelete(null);
+      toast.success('Administrador eliminado correctamente.');
       load();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo eliminar el administrador.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar el administrador.'];
+      setErrors(messages);
+      toast.error(messages[0]);
       setPendingDelete(null);
     }
   }
@@ -103,14 +111,19 @@ export function SysadminAdmins() {
         </FormCard>
       )}
 
-      {filtered.map((admin) => (
-        <EntityRow
-          key={admin.id}
-          name={`${admin.firstName} ${admin.lastName}`}
-          subtitle={`DNI ${admin.dni} · ${admin.email}`}
-          onDelete={() => setPendingDelete(admin)}
-        />
-      ))}
+      <EntityTable
+        rows={filtered}
+        columns={[
+          { label: 'Nombre', render: (a) => `${a.firstName} ${a.lastName}` },
+          { label: 'DNI', render: (a) => a.dni },
+          { label: 'Email', render: (a) => a.email },
+        ]}
+        renderActions={(admin) => (
+          <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(admin)}>
+            ✕
+          </button>
+        )}
+      />
 
       {pendingDelete && (
         <ConfirmDeleteOverlay

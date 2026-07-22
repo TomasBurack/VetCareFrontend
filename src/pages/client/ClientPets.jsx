@@ -7,6 +7,7 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
+import { useToast } from '../../context/useToast';
 
 const TYPE_LABELS = {
   Canine: 'Perro',
@@ -15,7 +16,15 @@ const TYPE_LABELS = {
   Reptile: 'Reptil',
 };
 
+const TYPE_EMOJIS = {
+  Canine: '🐾',
+  Feline: '🐱',
+  Avian: '🐦',
+  Reptile: '🦎',
+};
+
 export function ClientPets() {
+  const toast = useToast();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
@@ -28,7 +37,7 @@ export function ClientPets() {
       setPets(data ?? []);
     } catch (err) {
       if (!(err instanceof ApiError && err.status === 404)) {
-        setErrors(err instanceof ApiError ? err.messages : ['No se pudieron cargar las mascotas.']);
+        setErrors(err instanceof ApiError ? err.messages : ['No hay mascotas disponibles.']);
       }
       setPets([]);
     } finally {
@@ -44,9 +53,12 @@ export function ClientPets() {
     try {
       await petApi.remove(pendingDelete.idPet);
       setPendingDelete(null);
+      toast.success('Mascota eliminada correctamente.');
       load();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo eliminar la mascota.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar la mascota.'];
+      setErrors(messages);
+      toast.error(messages[0]);
       setPendingDelete(null);
     }
   }
@@ -76,7 +88,7 @@ export function ClientPets() {
           <div className="ficha" key={pet.idPet}>
             <div className="ficha-pad">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ fontSize: '1.6rem' }}>🐾</div>
+                <div style={{ fontSize: '1.6rem' }}>{TYPE_EMOJIS[pet.typePet] ?? '🐾'}</div>
                 <div className="actions">
                   <Link to={`/mis-mascotas/${pet.idPet}/editar`} className="icon-btn" title="Editar">
                     ✎

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { administratorApi } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import { ErrorBanner } from '../../components/ErrorBanner';
-import { EntityRow } from '../../components/EntityRow';
+import { EntityTable } from '../../components/EntityTable';
 
 const ROLE_COLORS = {
   Administrator: '#B5654A',
@@ -23,9 +23,9 @@ export function AdminAllUsers() {
   }, []);
 
   const rows = [
-    ...data.admins.map((u) => ({ ...u, role: 'Administrator', roleLabel: 'Administrador' })),
-    ...data.clients.map((u) => ({ ...u, role: 'Client', roleLabel: 'Cliente' })),
-    ...data.vets.map((u) => ({ ...u, role: 'Veterinarian', roleLabel: 'Veterinario' })),
+    ...data.admins.map((u) => ({ ...u, role: 'Administrator', roleLabel: 'Administrador', rowKey: `Administrator-${u.id}` })),
+    ...data.clients.map((u) => ({ ...u, role: 'Client', roleLabel: 'Cliente', rowKey: `Client-${u.id}` })),
+    ...data.vets.map((u) => ({ ...u, role: 'Veterinarian', roleLabel: 'Veterinario', rowKey: `Veterinarian-${u.id}` })),
   ];
 
   const visibleRows = tab === 'all' ? rows : rows.filter((r) => r.role === tab);
@@ -66,14 +66,20 @@ export function AdminAllUsers() {
         </button>
       </div>
 
-      {visibleRows.map((user) => (
-        <EntityRow
-          key={`${user.role}-${user.id}`}
-          name={`${user.firstName} ${user.lastName}`}
-          subtitle={`${user.email} · ${user.roleLabel}`}
-          color={ROLE_COLORS[user.role]}
-        />
-      ))}
+      <EntityTable
+        rows={visibleRows}
+        keyField="rowKey"
+        columns={[
+          { label: 'Nombre', render: (u) => `${u.firstName} ${u.lastName}` },
+          { label: 'Email', render: (u) => u.email },
+          {
+            label: 'Rol',
+            render: (u) => (
+              <span style={{ color: ROLE_COLORS[u.role], fontWeight: 600 }}>{u.roleLabel}</span>
+            ),
+          },
+        ]}
+      />
     </>
   );
 }

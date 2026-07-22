@@ -32,6 +32,7 @@ const ROLE_NAV = {
     tag: 'SYSADMIN',
     links: [
       { to: '/administradores', label: 'Administradores' },
+      { to: '/clientes', label: 'Clientes' },
       { to: '/mi-perfil', label: 'Mi perfil' },
     ],
   },

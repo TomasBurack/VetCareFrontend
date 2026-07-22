@@ -8,9 +8,11 @@ import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { TwoFactorSettings } from '../../components/TwoFactorSettings';
+import { useToast } from '../../context/useToast';
 
 export function ClientProfile() {
   const { logout } = useAuth();
+  const toast = useToast();
   const [form, setForm] = useState(null);
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -38,8 +40,11 @@ export function ClientProfile() {
     setSaving(true);
     try {
       await clientApi.updateMyUser(form);
+      toast.success('Cambios guardados correctamente.');
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSaving(false);
     }
@@ -48,9 +53,12 @@ export function ClientProfile() {
   async function handleDelete() {
     try {
       await clientApi.deleteMyUser();
+      toast.success('Cuenta eliminada correctamente.');
       logout();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo eliminar la cuenta.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar la cuenta.'];
+      setErrors(messages);
+      toast.error(messages[0]);
       setConfirmingDelete(false);
     }
   }

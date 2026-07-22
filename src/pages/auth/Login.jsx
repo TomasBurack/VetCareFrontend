@@ -7,9 +7,11 @@ import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
 import { ROLE_HOME } from '../../context/roleHome';
 import { ApiError } from '../../api/client';
+import { useToast } from '../../context/useToast';
 
 export function Login() {
   const { login, verifyTwoFactor } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,10 +36,13 @@ export function Login() {
       if (result.twoFactorRequired) {
         setPendingToken(result.pendingToken);
       } else {
+        toast.success('Sesión iniciada correctamente.');
         goToDestination(result);
       }
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo iniciar sesión. Intentá de nuevo.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo iniciar sesión. Intentá de nuevo.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }
@@ -49,9 +54,12 @@ export function Login() {
     setSubmitting(true);
     try {
       const session = await verifyTwoFactor(pendingToken, code);
+      toast.success('Sesión iniciada correctamente.');
       goToDestination(session);
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['Código inválido. Intentá de nuevo.']);
+      const messages = err instanceof ApiError ? err.messages : ['Código inválido. Intentá de nuevo.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }

@@ -61,6 +61,8 @@ export const veterinarianApi = {
   myUser: () => api.get('/api/veterinarian/myuser'),
   updateMyUser: (data) => api.put('/api/veterinarian/myuser', data),
   deleteMyUser: () => api.delete('/api/veterinarian/myuser'),
+
+  listForClient: () => api.get('/api/client/veterinarians'),
 };
 
 export const administratorApi = {
