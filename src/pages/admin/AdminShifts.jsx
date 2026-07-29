@@ -13,6 +13,12 @@ const TABS = [
   { key: 'canceled', label: 'Cancelados' },
 ];
 
+const STATUS_OPTIONS = ['Served', 'Canceled'];
+const STATUS_OPTION_LABELS = {
+  Served: 'Marcar como atendido',
+  Canceled: 'Cancelar turno',
+};
+
 export function AdminShifts() {
   const toast = useToast();
   const [shifts, setShifts] = useState([]);
@@ -34,6 +40,18 @@ export function AdminShifts() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on mount, no client-side data source to derive from
     load();
   }, []);
+
+  async function changeStatus(id, status) {
+    try {
+      await shiftApi.updateStatusAsAdmin(id, status);
+      toast.success(status === 'Served' ? 'Turno marcado como atendido.' : 'Turno cancelado correctamente.');
+      load();
+    } catch (err) {
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo actualizar el turno.'];
+      setErrors(messages);
+      toast.error(messages[0]);
+    }
+  }
 
   async function confirmDelete() {
     try {
@@ -83,9 +101,24 @@ export function AdminShifts() {
         showVeterinarian
         renderActions={(shift) =>
           shift.status?.toLowerCase() === 'pendant' && (
-            <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(shift)}>
-              ✕
-            </button>
+            <div style={{ display: 'flex', gap: '.4rem', alignItems: 'center' }}>
+              <select
+                className="f"
+                style={{ width: 'auto', margin: 0, padding: '.4rem .6rem', fontSize: '.78rem' }}
+                value=""
+                onChange={(e) => e.target.value && changeStatus(shift.id, e.target.value)}
+              >
+                <option value="">Cambiar estado…</option>
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {STATUS_OPTION_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+              <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(shift)}>
+                ✕
+              </button>
+            </div>
           )
         }
       />

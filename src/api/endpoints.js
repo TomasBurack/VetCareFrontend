@@ -42,12 +42,16 @@ export const breedsApi = {
 
 export const shiftApi = {
   create: (data) => api.post('/api/shift/create', data),
+  busyTimes: (enrollment, date) =>
+    api.get(`/api/shift/busy-times?enrollment=${encodeURIComponent(enrollment)}&date=${encodeURIComponent(date)}`),
   listAdmin: () => api.get('/api/shift/admin'),
   listClient: () => api.get('/api/shift/client'),
   listVeterinarian: () => api.get('/api/shift/veterinarian'),
   cancelAsClient: (id) => api.put(`/api/shift/status/client/${id}`),
   updateStatusAsVeterinarian: (id, status) =>
     api.put(`/api/shift/status/veterinarian/${id}`, { status }),
+  updateStatusAsAdmin: (id, status) =>
+    api.put(`/api/admins/shift/status/${id}`, { status }),
   removeAsAdmin: (id) => api.delete(`/api/admins/shift/delete/${id}`),
 };
 

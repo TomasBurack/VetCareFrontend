@@ -45,7 +45,6 @@ export function ResetPassword() {
     <AuthCard title="Restablecer contraseña" subtitle="El enlace de tu email incluye un token válido por tiempo limitado.">
       <ErrorBanner messages={errors} />
       <form onSubmit={handleSubmit}>
-        <Field label="Token" value={token} readOnly style={{ fontFamily: 'var(--font-mono)', fontSize: '.78rem' }} />
         <Field
           label="Nueva contraseña"
           type="password"
