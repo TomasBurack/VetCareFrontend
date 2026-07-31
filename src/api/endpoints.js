@@ -1,11 +1,19 @@
 import { api } from './client';
 
 export const authApi = {
-  signIn: (email, password) => api.post('/api/auth/signin', { email, password }, { auth: false }),
-  signUp: (data) => api.post('/api/auth/signup', data, { auth: false }),
-  forgotPassword: (email) => api.post('/api/auth/forgost-post', { email }, { auth: false }),
+  signIn: (email, password) => api.post('/api/auth/signin', { email, password }),
+  signUp: (data) => api.post('/api/auth/signup', data),
+  signOut: () => api.post('/api/auth/signout'),
+  me: () => api.get('/api/auth/me'),
+  forgotPassword: (email) => api.post('/api/auth/forgost-post', { email }),
   resetPassword: (token, newPassword) =>
-    api.post('/api/auth/reset-password', { token, newPassword }, { auth: false }),
+    api.post('/api/auth/reset-password', { token, newPassword }),
+
+  enableTwoFactor: () => api.post('/api/auth/2fa/enable'),
+  confirmTwoFactor: (code) => api.post('/api/auth/2fa/confirm', { code }),
+  verifyTwoFactor: (pendingToken, code) =>
+    api.post('/api/auth/2fa/verify', { pendingToken, code }),
+  disableTwoFactor: (password) => api.post('/api/auth/2fa/disable', { password }),
 };
 
 export const clientApi = {
@@ -34,12 +42,16 @@ export const breedsApi = {
 
 export const shiftApi = {
   create: (data) => api.post('/api/shift/create', data),
+  busyTimes: (enrollment, date) =>
+    api.get(`/api/shift/busy-times?enrollment=${encodeURIComponent(enrollment)}&date=${encodeURIComponent(date)}`),
   listAdmin: () => api.get('/api/shift/admin'),
   listClient: () => api.get('/api/shift/client'),
   listVeterinarian: () => api.get('/api/shift/veterinarian'),
   cancelAsClient: (id) => api.put(`/api/shift/status/client/${id}`),
   updateStatusAsVeterinarian: (id, status) =>
     api.put(`/api/shift/status/veterinarian/${id}`, { status }),
+  updateStatusAsAdmin: (id, status) =>
+    api.put(`/api/admins/shift/status/${id}`, { status }),
   removeAsAdmin: (id) => api.delete(`/api/admins/shift/delete/${id}`),
 };
 
@@ -53,6 +65,8 @@ export const veterinarianApi = {
   myUser: () => api.get('/api/veterinarian/myuser'),
   updateMyUser: (data) => api.put('/api/veterinarian/myuser', data),
   deleteMyUser: () => api.delete('/api/veterinarian/myuser'),
+
+  listForClient: () => api.get('/api/client/veterinarians'),
 };
 
 export const administratorApi = {

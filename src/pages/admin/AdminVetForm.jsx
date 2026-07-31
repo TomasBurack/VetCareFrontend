@@ -7,6 +7,7 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { SPECIALITIES } from '../../constants/speciality';
+import { useToast } from '../../context/useToast';
 
 const EMPTY_FORM = {
   firstName: '',
@@ -21,6 +22,7 @@ const EMPTY_FORM = {
 
 export function AdminVetForm() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -35,9 +37,12 @@ export function AdminVetForm() {
     setSubmitting(true);
     try {
       await veterinarianApi.create(form);
+      toast.success('Veterinario creado correctamente.');
       navigate('/veterinarios');
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo crear el veterinario.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo crear el veterinario.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }

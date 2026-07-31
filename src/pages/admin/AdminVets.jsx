@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { veterinarianApi } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import { ErrorBanner } from '../../components/ErrorBanner';
-import { EntityRow } from '../../components/EntityRow';
+import { EntityTable } from '../../components/EntityTable';
 import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
+import { useToast } from '../../context/useToast';
 
 export function AdminVets() {
+  const toast = useToast();
   const [vets, setVets] = useState([]);
   const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
@@ -31,9 +33,12 @@ export function AdminVets() {
     try {
       await veterinarianApi.remove(pendingDelete.id);
       setPendingDelete(null);
+      toast.success('Veterinario eliminado correctamente.');
       load();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo eliminar el veterinario.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar el veterinario.'];
+      setErrors(messages);
+      toast.error(messages[0]);
       setPendingDelete(null);
     }
   }
@@ -60,14 +65,19 @@ export function AdminVets() {
         </Link>
       </div>
 
-      {filtered.map((vet) => (
-        <EntityRow
-          key={vet.id}
-          name={`${vet.firstName} ${vet.lastName}`}
-          subtitle={`${vet.enrollment} · ${vet.speciality}`}
-          onDelete={() => setPendingDelete(vet)}
-        />
-      ))}
+      <EntityTable
+        rows={filtered}
+        columns={[
+          { label: 'Nombre', render: (v) => `${v.firstName} ${v.lastName}` },
+          { label: 'Matrícula', render: (v) => v.enrollment },
+          { label: 'Especialidad', render: (v) => v.speciality },
+        ]}
+        renderActions={(vet) => (
+          <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(vet)}>
+            ✕
+          </button>
+        )}
+      />
 
       {pendingDelete && (
         <ConfirmDeleteOverlay

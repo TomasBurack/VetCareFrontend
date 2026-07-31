@@ -6,9 +6,11 @@ import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
 import { ApiError } from '../../api/client';
+import { useToast } from '../../context/useToast';
 
 export function ResetPassword() {
   const { resetPassword } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
@@ -28,9 +30,12 @@ export function ResetPassword() {
     setSubmitting(true);
     try {
       await resetPassword(token, newPassword);
+      toast.success('Contraseña actualizada correctamente.');
       navigate('/login', { replace: true });
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo actualizar la contraseña.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo actualizar la contraseña.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }
@@ -40,7 +45,6 @@ export function ResetPassword() {
     <AuthCard title="Restablecer contraseña" subtitle="El enlace de tu email incluye un token válido por tiempo limitado.">
       <ErrorBanner messages={errors} />
       <form onSubmit={handleSubmit}>
-        <Field label="Token" value={token} readOnly style={{ fontFamily: 'var(--font-mono)', fontSize: '.78rem' }} />
         <Field
           label="Nueva contraseña"
           type="password"

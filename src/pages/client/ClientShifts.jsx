@@ -7,7 +7,9 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Button } from '../../components/Button';
 import { Badge } from '../../components/Badge';
 import { EmptyState } from '../../components/EmptyState';
+import { TruncatedText } from '../../components/TruncatedText';
 import { formatShiftDate } from '../../utils/date';
+import { useToast } from '../../context/useToast';
 
 const STATUS_STRIPE = {
   pendant: 'var(--amber)',
@@ -16,6 +18,7 @@ const STATUS_STRIPE = {
 };
 
 export function ClientShifts() {
+  const toast = useToast();
   const [shifts, setShifts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
@@ -42,9 +45,12 @@ export function ClientShifts() {
   async function cancelShift(id) {
     try {
       await shiftApi.cancelAsClient(id);
+      toast.success('Turno cancelado correctamente.');
       load();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo cancelar el turno.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo cancelar el turno.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     }
   }
 
@@ -70,10 +76,9 @@ export function ClientShifts() {
           <div className="ficha" style={{ '--stripe': STATUS_STRIPE[status], marginBottom: '.8rem' }} key={shift.id}>
             <div className="ficha-pad" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontWeight: 600, fontSize: '.95rem' }}>
-                  {shift.petName} · {shift.description}
-                </div>
+                <div style={{ fontWeight: 600, fontSize: '.95rem' }}>{shift.petName}</div>
                 <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)', marginTop: '.2rem' }}>
+                  <TruncatedText text={shift.description} title="Motivo de la consulta" limit={30} /> ·{' '}
                   {formatShiftDate(shift.dateShift)} · {shift.veterinarianName}
                 </div>
               </div>

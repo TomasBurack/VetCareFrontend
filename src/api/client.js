@@ -10,30 +10,18 @@ export class ApiError extends Error {
   }
 }
 
-function readToken() {
-  try {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-    return raw ? JSON.parse(raw)?.token : null;
-  } catch {
-    return null;
-  }
-}
-
 let onUnauthorized = () => {};
 export function setUnauthorizedHandler(handler) {
   onUnauthorized = handler;
 }
 
-async function request(method, path, { body, auth = true } = {}) {
+async function request(method, path, { body } = {}) {
   const headers = { 'Content-Type': 'application/json' };
-  if (auth) {
-    const token = readToken();
-    if (token) headers.Authorization = `Bearer ${token}`;
-  }
 
   const response = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
+    credentials: 'include',
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 

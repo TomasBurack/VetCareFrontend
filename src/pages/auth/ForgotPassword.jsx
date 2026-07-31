@@ -6,9 +6,11 @@ import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
 import { ApiError } from '../../api/client';
+import { useToast } from '../../context/useToast';
 
 export function ForgotPassword() {
   const { requestPasswordReset } = useAuth();
+  const toast = useToast();
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -21,8 +23,11 @@ export function ForgotPassword() {
     try {
       await requestPasswordReset(email);
       setSent(true);
+      toast.success('Te enviamos un email con instrucciones.');
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo procesar la solicitud.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo procesar la solicitud.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }

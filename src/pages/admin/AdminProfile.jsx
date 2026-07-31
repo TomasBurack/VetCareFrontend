@@ -7,9 +7,12 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
+import { TwoFactorSettings } from '../../components/TwoFactorSettings';
+import { useToast } from '../../context/useToast';
 
 export function AdminProfile() {
   const { logout } = useAuth();
+  const toast = useToast();
   const [form, setForm] = useState(null);
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -37,8 +40,11 @@ export function AdminProfile() {
     setSaving(true);
     try {
       await administratorApi.updateMyUser(form);
+      toast.success('Cambios guardados correctamente.');
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSaving(false);
     }
@@ -47,9 +53,12 @@ export function AdminProfile() {
   async function handleDelete() {
     try {
       await administratorApi.deleteMyUser();
+      toast.success('Cuenta eliminada correctamente.');
       logout();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo eliminar la cuenta.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar la cuenta.'];
+      setErrors(messages);
+      toast.error(messages[0]);
       setConfirmingDelete(false);
     }
   }
@@ -78,6 +87,7 @@ export function AdminProfile() {
             </Button>
           </div>
         </form>
+        <TwoFactorSettings />
         <div className="danger-zone">
           <div className="t">Eliminar cuenta</div>
           <div className="sub">Solo un sysadmin puede recrear una cuenta de administrador eliminada.</div>

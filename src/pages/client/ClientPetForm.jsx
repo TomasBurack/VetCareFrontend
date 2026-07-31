@@ -6,6 +6,8 @@ import { FormCard } from '../../components/FormCard';
 import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
+import { Combobox } from '../../components/Combobox';
+import { useToast } from '../../context/useToast';
 
 const PET_TYPES = [
   { value: 'Canine', label: 'Perro' },
@@ -20,6 +22,7 @@ export function ClientPetForm() {
   const { id } = useParams();
   const isEditing = !!id;
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [breeds, setBreeds] = useState([]);
@@ -83,9 +86,12 @@ export function ClientPetForm() {
       } else {
         await petApi.create(payload);
       }
+      toast.success(isEditing ? 'Mascota actualizada correctamente.' : 'Mascota creada correctamente.');
       navigate('/mis-mascotas');
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo guardar la mascota.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo guardar la mascota.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }
@@ -122,16 +128,12 @@ export function ClientPetForm() {
 
           {breedsAvailable ? (
             <Field label="Raza" required hint="Las razas se cargan desde el catálogo externo según el tipo de mascota elegido.">
-              <select className="f" value={form.breed} onChange={update('breed')} required>
-                <option value="" disabled>
-                  Seleccioná una raza
-                </option>
-                {breeds.map((breed) => (
-                  <option key={breed} value={breed}>
-                    {breed}
-                  </option>
-                ))}
-              </select>
+              <Combobox
+                options={breeds}
+                value={form.breed}
+                onChange={(breed) => setForm((prev) => ({ ...prev, breed }))}
+                placeholder="Buscá una raza…"
+              />
             </Field>
           ) : (
             <Field label="Raza" required placeholder="Ej: Mestizo" value={form.breed} onChange={update('breed')} />

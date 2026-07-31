@@ -2,15 +2,9 @@ import { useEffect, useState } from 'react';
 import { shiftApi } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import { ErrorBanner } from '../../components/ErrorBanner';
-import { Badge } from '../../components/Badge';
+import { ShiftsTable } from '../../components/ShiftsTable';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
-import { formatShiftDate } from '../../utils/date';
-
-const STATUS_STRIPE = {
-  pendant: 'var(--amber)',
-  served: 'var(--primary)',
-  canceled: 'var(--terracotta)',
-};
+import { useToast } from '../../context/useToast';
 
 const TABS = [
   { key: 'all', label: 'Todos' },
@@ -19,7 +13,14 @@ const TABS = [
   { key: 'canceled', label: 'Cancelados' },
 ];
 
+const STATUS_OPTIONS = ['Served', 'Canceled'];
+const STATUS_OPTION_LABELS = {
+  Served: 'Marcar como atendido',
+  Canceled: 'Cancelar turno',
+};
+
 export function AdminShifts() {
+  const toast = useToast();
   const [shifts, setShifts] = useState([]);
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
@@ -40,13 +41,28 @@ export function AdminShifts() {
     load();
   }, []);
 
+  async function changeStatus(id, status) {
+    try {
+      await shiftApi.updateStatusAsAdmin(id, status);
+      toast.success(status === 'Served' ? 'Turno marcado como atendido.' : 'Turno cancelado correctamente.');
+      load();
+    } catch (err) {
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo actualizar el turno.'];
+      setErrors(messages);
+      toast.error(messages[0]);
+    }
+  }
+
   async function confirmDelete() {
     try {
       await shiftApi.removeAsAdmin(pendingDelete.id);
       setPendingDelete(null);
+      toast.success('Turno eliminado correctamente.');
       load();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo eliminar el turno.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar el turno.'];
+      setErrors(messages);
+      toast.error(messages[0]);
       setPendingDelete(null);
     }
   }
@@ -80,29 +96,32 @@ export function AdminShifts() {
         />
       </div>
 
-      {filtered.map((shift) => {
-        const status = shift.status?.toLowerCase();
-        return (
-          <div className="ficha" style={{ '--stripe': STATUS_STRIPE[status], marginBottom: '.8rem' }} key={shift.id}>
-            <div className="ficha-pad" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: '.95rem' }}>{shift.petName}</div>
-                <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)', marginTop: '.2rem' }}>
-                  {shift.veterinarianName} · {formatShiftDate(shift.dateShift)}
-                </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
-                <Badge status={status} />
-                {status === 'pendant' && (
-                  <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(shift)}>
-                    ✕
-                  </button>
-                )}
-              </div>
+      <ShiftsTable
+        shifts={filtered}
+        showVeterinarian
+        renderActions={(shift) =>
+          shift.status?.toLowerCase() === 'pendant' && (
+            <div style={{ display: 'flex', gap: '.4rem', alignItems: 'center' }}>
+              <select
+                className="f"
+                style={{ width: 'auto', margin: 0, padding: '.4rem .6rem', fontSize: '.78rem' }}
+                value=""
+                onChange={(e) => e.target.value && changeStatus(shift.id, e.target.value)}
+              >
+                <option value="">Cambiar estado…</option>
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {STATUS_OPTION_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+              <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(shift)}>
+                ✕
+              </button>
             </div>
-          </div>
-        );
-      })}
+          )
+        }
+      />
 
       {pendingDelete && (
         <ConfirmDeleteOverlay

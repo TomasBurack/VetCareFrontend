@@ -7,10 +7,13 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
+import { TwoFactorSettings } from '../../components/TwoFactorSettings';
 import { SPECIALITIES } from '../../constants/speciality';
+import { useToast } from '../../context/useToast';
 
 export function VetProfile() {
   const { logout } = useAuth();
+  const toast = useToast();
   const [form, setForm] = useState(null);
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -40,8 +43,11 @@ export function VetProfile() {
     setSaving(true);
     try {
       await veterinarianApi.updateMyUser(form);
+      toast.success('Cambios guardados correctamente.');
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.'];
+      setErrors(messages);
+      toast.error(messages[0]);
     } finally {
       setSaving(false);
     }
@@ -50,9 +56,12 @@ export function VetProfile() {
   async function handleDelete() {
     try {
       await veterinarianApi.deleteMyUser();
+      toast.success('Cuenta eliminada correctamente.');
       logout();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo eliminar la cuenta.']);
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar la cuenta.'];
+      setErrors(messages);
+      toast.error(messages[0]);
       setConfirmingDelete(false);
     }
   }
@@ -102,6 +111,7 @@ export function VetProfile() {
             </Button>
           </div>
         </form>
+        <TwoFactorSettings />
         <div className="danger-zone">
           <div className="t">Eliminar cuenta</div>
           <div className="sub">Perderás el acceso a tus turnos asignados. Solo un administrador puede recrear tu cuenta.</div>
