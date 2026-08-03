@@ -29,47 +29,44 @@ export function ClientPetForm() {
   const [breedsAvailable, setBreedsAvailable] = useState(true);
   const [errors, setErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-  const [pendingBreed, setPendingBreed] = useState(null);
+
+  async function loadBreeds(typePet, currentBreed) {
+    try {
+      const list = await breedsApi.list(typePet);
+      if (Array.isArray(list) && list.length > 0) {
+        const uniqueList = [...new Set(list)];
+        setBreeds(uniqueList);
+        setBreedsAvailable(true);
+        setForm((prev) => ({
+          ...prev,
+          breed: currentBreed && uniqueList.includes(currentBreed) ? currentBreed : prev.breed,
+        }));
+      } else {
+        setBreedsAvailable(false);
+        setForm((prev) => ({ ...prev, breed: currentBreed ?? prev.breed }));
+      }
+    } catch {
+      setBreedsAvailable(false);
+      setForm((prev) => ({ ...prev, breed: currentBreed ?? prev.breed }));
+    }
+  }
 
   useEffect(() => {
-    if (!isEditing) return;
+    if (!isEditing) {
+      loadBreeds(EMPTY_FORM.typePet, null);
+      return;
+    }
     petApi.getById(id).then((pet) => {
-      setPendingBreed(pet.breed);
-      setForm({ name: pet.name, typePet: pet.typePet, age: String(pet.age), breed: '' });
+      setForm({ name: pet.name, typePet: pet.typePet, age: String(pet.age), breed: pet.breed });
+      loadBreeds(pet.typePet, pet.breed);
     });
   }, [id, isEditing]);
 
-  useEffect(() => {
-    let cancelled = false;
-    breedsApi
-      .list(form.typePet)
-      .then((list) => {
-        if (cancelled) return;
-        if (Array.isArray(list) && list.length > 0) {
-          const uniqueList = [...new Set(list)];
-          setBreeds(uniqueList);
-          setBreedsAvailable(true);
-          setForm((prev) => ({
-            ...prev,
-            breed: pendingBreed && uniqueList.includes(pendingBreed) ? pendingBreed : prev.breed,
-          }));
-        } else {
-          setBreedsAvailable(false);
-          setForm((prev) => ({ ...prev, breed: pendingBreed ?? prev.breed }));
-        }
-        setPendingBreed(null);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setBreedsAvailable(false);
-        setForm((prev) => ({ ...prev, breed: pendingBreed ?? prev.breed }));
-        setPendingBreed(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- pendingBreed is read once per typePet change, not a reactive dependency
-  }, [form.typePet]);
+  function handleTypeChange(e) {
+    const typePet = e.target.value;
+    setForm((prev) => ({ ...prev, typePet, breed: '' }));
+    loadBreeds(typePet, null);
+  }
 
   function update(field) {
     return (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -114,7 +111,7 @@ export function ClientPetForm() {
           <Field label="Nombre" required placeholder="Ej: Simón" value={form.name} onChange={update('name')} />
           <div className="grid cols-2">
             <Field label="Tipo" required>
-              <select className="f" value={form.typePet} onChange={update('typePet')}>
+              <select className="f" value={form.typePet} onChange={handleTypeChange}>
                 {PET_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
                     {type.label}

@@ -95,8 +95,8 @@ export function AdminClients() {
         <Button onClick={() => setCreating((v) => !v)}>{creating ? 'Cancelar' : '+ Nuevo cliente'}</Button>
       </div>
 
-      {creating && (
-        <FormCard maxWidth={520} align="left">
+      {creating ? (
+        <FormCard maxWidth={520}>
           <form onSubmit={handleCreate}>
             <div className="grid cols-2">
               <Field label="Nombre" required value={form.firstName} onChange={update('firstName')} />
@@ -113,21 +113,21 @@ export function AdminClients() {
             </Button>
           </form>
         </FormCard>
+      ) : (
+        <EntityTable
+          rows={filtered}
+          columns={[
+            { label: 'Nombre', render: (c) => `${c.firstName} ${c.lastName}` },
+            { label: 'DNI', render: (c) => c.dni },
+            { label: 'Email', render: (c) => c.email },
+          ]}
+          renderActions={(client) => (
+            <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(client)}>
+              ✕
+            </button>
+          )}
+        />
       )}
-
-      <EntityTable
-        rows={filtered}
-        columns={[
-          { label: 'Nombre', render: (c) => `${c.firstName} ${c.lastName}` },
-          { label: 'DNI', render: (c) => c.dni },
-          { label: 'Email', render: (c) => c.email },
-        ]}
-        renderActions={(client) => (
-          <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(client)}>
-            ✕
-          </button>
-        )}
-      />
 
       {pendingDelete && (
         <ConfirmDeleteOverlay
