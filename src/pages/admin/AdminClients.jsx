@@ -96,7 +96,7 @@ export function AdminClients() {
       </div>
 
       {creating && (
-        <FormCard maxWidth={520}>
+        <FormCard maxWidth={520} align="left">
           <form onSubmit={handleCreate}>
             <div className="grid cols-2">
               <Field label="Nombre" required value={form.firstName} onChange={update('firstName')} />

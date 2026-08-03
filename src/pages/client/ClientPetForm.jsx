@@ -78,8 +78,15 @@ export function ClientPetForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors([]);
+
+    const age = Number(form.age);
+    if (!Number.isInteger(age) || age < 0 || age > 100) {
+      setErrors(['La edad debe ser un número entero entre 0 y 100.']);
+      return;
+    }
+
     setSubmitting(true);
-    const payload = { name: form.name, typePet: form.typePet, age: Number(form.age), breed: form.breed };
+    const payload = { name: form.name, typePet: form.typePet, age, breed: form.breed };
     try {
       if (isEditing) {
         await petApi.update(id, payload);
@@ -120,6 +127,7 @@ export function ClientPetForm() {
               type="number"
               required
               min="0"
+              max="100"
               placeholder="3"
               value={form.age}
               onChange={update('age')}

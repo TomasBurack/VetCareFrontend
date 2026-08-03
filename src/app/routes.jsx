@@ -60,8 +60,6 @@ export const router = createBrowserRouter([
             element: <RoleRoute roles={['Administrator']} />,
             children: [
               { path: '/usuarios', element: <AdminAllUsers /> },
-              { path: '/veterinarios', element: <AdminVets /> },
-              { path: '/veterinarios/nuevo', element: <AdminVetForm /> },
               { path: '/turnos', element: <AdminShifts /> },
             ],
           },
@@ -73,7 +71,11 @@ export const router = createBrowserRouter([
 
           {
             element: <RoleRoute roles={['Administrator', 'SysAdmin']} />,
-            children: [{ path: '/clientes', element: <AdminClients /> }],
+            children: [
+              { path: '/clientes', element: <AdminClients /> },
+              { path: '/veterinarios', element: <AdminVets /> },
+              { path: '/veterinarios/nuevo', element: <AdminVetForm /> },
+            ],
           },
         ],
       },

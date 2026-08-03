@@ -34,6 +34,7 @@ const ROLE_NAV = {
     links: [
       { to: '/administradores', label: 'Administradores' },
       { to: '/clientes', label: 'Clientes' },
+      { to: '/veterinarios', label: 'Veterinarios' },
       { to: '/mi-perfil', label: 'Mi perfil' },
     ],
   },
