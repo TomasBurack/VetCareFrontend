@@ -3,6 +3,7 @@ import { ProtectedRoute } from '../routes/ProtectedRoute';
 import { RoleRoute } from '../routes/RoleRoute';
 import { Layout } from '../components/Layout';
 
+import { Welcome } from '../pages/Welcome';
 import { Login } from '../pages/auth/Login';
 import { Register } from '../pages/auth/Register';
 import { ForgotPassword } from '../pages/auth/ForgotPassword';
@@ -79,6 +80,6 @@ export const router = createBrowserRouter([
     ],
   },
 
-  { path: '/', element: <Navigate to="/login" replace /> },
+  { path: '/', element: <Welcome /> },
   { path: '*', element: <Navigate to="/login" replace /> },
 ]);

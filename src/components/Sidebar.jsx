@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { LogOut, Sun, Moon } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
-import { useTheme } from '../context/useTheme';
+import { ThemeSwitch } from './ThemeSwitch';
 
 const ROLE_NAV = {
   Client: {
@@ -41,7 +41,6 @@ const ROLE_NAV = {
 
 export function Sidebar() {
   const { role, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const nav = ROLE_NAV[role];
 
   if (!nav) return null;
@@ -50,20 +49,7 @@ export function Sidebar() {
     <div className="sidebar">
       <div className="brand">VetCare</div>
       <span className="role-tag">{nav.tag}</span>
-      <button
-        type="button"
-        className="theme-switch"
-        role="switch"
-        aria-checked={theme === 'dark'}
-        aria-label="Cambiar tema claro/oscuro"
-        onClick={toggleTheme}
-      >
-        <Sun size={13} className="theme-switch-icon sun" />
-        <span className="theme-switch-track">
-          <span className="theme-switch-thumb" />
-        </span>
-        <Moon size={13} className="theme-switch-icon moon" />
-      </button>
+      <ThemeSwitch />
       <hr className="divider" />
       <nav>
         {nav.links.map((link) => (
