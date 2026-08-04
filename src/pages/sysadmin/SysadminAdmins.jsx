@@ -92,22 +92,37 @@ export function SysadminAdmins() {
             onChange={(e) => setSearch(e.target.value)}
           />
         )}
-        <Button onClick={() => setCreating((v) => !v)}>{creating ? 'Cancelar' : '+ Nuevo administrador'}</Button>
+        <Button variant={creating ? 'outline' : 'primary'} onClick={() => setCreating((v) => !v)}>
+          {creating ? 'Cancelar' : '+ Nuevo administrador'}
+        </Button>
       </div>
 
       {creating ? (
         <FormCard maxWidth={520}>
           <form onSubmit={handleCreate}>
             <div className="grid cols-2">
-              <Field label="Nombre" required value={form.firstName} onChange={update('firstName')} />
-              <Field label="Apellido" required value={form.lastName} onChange={update('lastName')} />
+              <Field label="Nombre" required placeholder="Tomás" value={form.firstName} onChange={update('firstName')} />
+              <Field label="Apellido" required placeholder="Burack" value={form.lastName} onChange={update('lastName')} />
             </div>
             <div className="grid cols-2">
-              <Field label="DNI" required value={form.dni} onChange={update('dni')} />
-              <Field label="Teléfono" required value={form.phoneNumber} onChange={update('phoneNumber')} />
+              <Field label="DNI" required placeholder="46760480" value={form.dni} onChange={update('dni')} />
+              <Field
+                label="Teléfono"
+                required
+                placeholder="+54 9 11 2200-1147"
+                value={form.phoneNumber}
+                onChange={update('phoneNumber')}
+              />
             </div>
-            <Field label="Email" type="email" required value={form.email} onChange={update('email')} />
-            <Field label="Contraseña temporal" type="password" required value={form.password} onChange={update('password')} />
+            <Field label="Email" type="email" required placeholder="tomas.burack@vetcare.com" value={form.email} onChange={update('email')} />
+            <Field
+              label="Contraseña temporal"
+              type="password"
+              required
+              placeholder="Se le pedirá cambiarla en el primer ingreso"
+              value={form.password}
+              onChange={update('password')}
+            />
             <Button type="submit" disabled={submitting}>
               {submitting ? 'Creando…' : 'Crear administrador'}
             </Button>

@@ -96,7 +96,9 @@ export function AdminClients() {
             onChange={(e) => setSearch(e.target.value)}
           />
         )}
-        <Button onClick={() => setCreating((v) => !v)}>{creating ? 'Cancelar' : '+ Nuevo cliente'}</Button>
+        <Button variant={creating ? 'outline' : 'primary'} onClick={() => setCreating((v) => !v)}>
+          {creating ? 'Cancelar' : '+ Nuevo cliente'}
+        </Button>
       </div>
 
       {creating ? (
