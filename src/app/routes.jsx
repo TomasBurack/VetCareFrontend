@@ -22,6 +22,7 @@ import { AdminClients } from '../pages/admin/AdminClients';
 import { AdminVets } from '../pages/admin/AdminVets';
 import { AdminVetForm } from '../pages/admin/AdminVetForm';
 import { AdminShifts } from '../pages/admin/AdminShifts';
+import { AdminPets } from '../pages/admin/AdminPets';
 
 import { SysadminAdmins } from '../pages/sysadmin/SysadminAdmins';
 
@@ -72,6 +73,7 @@ export const router = createBrowserRouter([
               { path: '/veterinarios', element: <AdminVets /> },
               { path: '/veterinarios/nuevo', element: <AdminVetForm /> },
               { path: '/veterinarios/editar/:id', element: <AdminVetForm /> },
+              { path: '/mascotas', element: <AdminPets /> },
             ],
           },
         ],

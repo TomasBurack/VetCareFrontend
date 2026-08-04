@@ -34,6 +34,10 @@ export const petApi = {
   create: (data) => api.post('/api/client/pet/create', data),
   update: (id, data) => api.put(`/api/client/pet/update/${id}`, data),
   remove: (id) => api.delete(`/api/client/pet/delete/${id}`),
+
+  allAdmin: () => api.get('/api/admins/pet/all'),
+  updateAdmin: (id, data) => api.put(`/api/admins/pet/update/${id}`, data),
+  removeAdmin: (id) => api.delete(`/api/admins/pet/delete/${id}`),
 };
 
 export const breedsApi = {
