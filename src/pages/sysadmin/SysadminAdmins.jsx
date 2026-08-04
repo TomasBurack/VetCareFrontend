@@ -18,8 +18,10 @@ export function SysadminAdmins() {
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+  const isFormOpen = creating || editingId !== null;
 
   async function load() {
     try {
@@ -43,18 +45,38 @@ export function SysadminAdmins() {
     setErrors([]);
     setSubmitting(true);
     try {
-      await sysadminApi.create(form);
+      if (editingId !== null) {
+        const payload = { ...form };
+        if (!payload.password) delete payload.password;
+        await sysadminApi.update(editingId, payload);
+        toast.success('Administrador actualizado correctamente.');
+      } else {
+        await sysadminApi.create(form);
+        toast.success('Administrador creado correctamente.');
+      }
       setForm(EMPTY_FORM);
       setCreating(false);
-      toast.success('Administrador creado correctamente.');
+      setEditingId(null);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo crear el administrador.'];
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo guardar el administrador.'];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function startEdit(admin) {
+    setForm({ ...EMPTY_FORM, ...admin, password: '' });
+    setEditingId(admin.id);
+    setCreating(false);
+  }
+
+  function closeForm() {
+    setForm(EMPTY_FORM);
+    setCreating(false);
+    setEditingId(null);
   }
 
   async function confirmDelete() {
@@ -78,13 +100,17 @@ export function SysadminAdmins() {
 
   return (
     <>
-      <h1 className="page-title">{creating ? 'Nuevo administrador' : 'Administradores'}</h1>
+      <h1 className="page-title">{editingId !== null ? 'Editar administrador' : creating ? 'Nuevo administrador' : 'Administradores'}</h1>
       <p className="page-sub">
-        {creating ? 'Crea una cuenta de administrador con acceso al panel.' : 'Alta, edición y baja de cuentas de administrador.'}
+        {editingId !== null
+          ? 'Modifica los datos de la cuenta del administrador.'
+          : creating
+            ? 'Crea una cuenta de administrador con acceso al panel.'
+            : 'Alta, edición y baja de cuentas de administrador.'}
       </p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
-        {!creating && (
+        {!isFormOpen && (
           <input
             className="search"
             placeholder="Buscar por nombre o email…"
@@ -92,12 +118,16 @@ export function SysadminAdmins() {
             onChange={(e) => setSearch(e.target.value)}
           />
         )}
-        <Button variant={creating ? 'outline' : 'primary'} onClick={() => setCreating((v) => !v)}>
-          {creating ? 'Cancelar' : '+ Nuevo administrador'}
-        </Button>
+        {isFormOpen ? (
+          <Button variant="outline" onClick={closeForm}>
+            Cancelar
+          </Button>
+        ) : (
+          <Button onClick={() => setCreating(true)}>+ Nuevo administrador</Button>
+        )}
       </div>
 
-      {creating ? (
+      {isFormOpen ? (
         <FormCard maxWidth={520}>
           <form onSubmit={handleCreate}>
             <div className="grid cols-2">
@@ -118,13 +148,13 @@ export function SysadminAdmins() {
             <Field
               label="Contraseña temporal"
               type="password"
-              required
-              placeholder="Se le pedirá cambiarla en el primer ingreso"
+              required={editingId === null}
+              placeholder={editingId !== null ? 'Dejar en blanco para no cambiarla' : 'Se le pedirá cambiarla en el primer ingreso'}
               value={form.password}
               onChange={update('password')}
             />
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'Creando…' : 'Crear administrador'}
+              {submitting ? 'Guardando…' : editingId !== null ? 'Guardar cambios' : 'Crear administrador'}
             </Button>
           </form>
         </FormCard>
@@ -137,9 +167,14 @@ export function SysadminAdmins() {
             { label: 'Email', render: (a) => a.email },
           ]}
           renderActions={(admin) => (
-            <button className="btn-text danger" onClick={() => setPendingDelete(admin)}>
-              Eliminar
-            </button>
+            <div className="actions">
+              <button className="btn-text" onClick={() => startEdit(admin)}>
+                Modificar
+              </button>
+              <button className="btn-text danger" onClick={() => setPendingDelete(admin)}>
+                Eliminar
+              </button>
+            </div>
           )}
         />
       )}

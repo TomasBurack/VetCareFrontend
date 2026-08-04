@@ -18,8 +18,10 @@ export function AdminClients() {
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+  const isFormOpen = creating || editingId !== null;
 
   async function load() {
     try {
@@ -43,18 +45,38 @@ export function AdminClients() {
     setErrors([]);
     setSubmitting(true);
     try {
-      await clientApi.create(form);
+      if (editingId !== null) {
+        const payload = { ...form };
+        if (!payload.password) delete payload.password;
+        await clientApi.update(editingId, payload);
+        toast.success('Cliente actualizado correctamente.');
+      } else {
+        await clientApi.create(form);
+        toast.success('Cliente creado correctamente.');
+      }
       setForm(EMPTY_FORM);
       setCreating(false);
-      toast.success('Cliente creado correctamente.');
+      setEditingId(null);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo crear el cliente.'];
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo guardar el cliente.'];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function startEdit(client) {
+    setForm({ ...EMPTY_FORM, ...client, password: '' });
+    setEditingId(client.id);
+    setCreating(false);
+  }
+
+  function closeForm() {
+    setForm(EMPTY_FORM);
+    setCreating(false);
+    setEditingId(null);
   }
 
   async function confirmDelete() {
@@ -82,13 +104,17 @@ export function AdminClients() {
 
   return (
     <>
-      <h1 className="page-title">{creating ? 'Nuevo cliente' : 'Clientes'}</h1>
+      <h1 className="page-title">{editingId !== null ? 'Editar cliente' : creating ? 'Nuevo cliente' : 'Clientes'}</h1>
       <p className="page-sub">
-        {creating ? 'Crea una cuenta de cliente con acceso al panel.' : 'Alta, edición y baja de cuentas de clientes.'}
+        {editingId !== null
+          ? 'Modifica los datos de la cuenta del cliente.'
+          : creating
+            ? 'Crea una cuenta de cliente con acceso al panel.'
+            : 'Alta, edición y baja de cuentas de clientes.'}
       </p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
-        {!creating && (
+        {!isFormOpen && (
           <input
             className="search"
             placeholder="Buscar por nombre, DNI o email…"
@@ -96,26 +122,43 @@ export function AdminClients() {
             onChange={(e) => setSearch(e.target.value)}
           />
         )}
-        <Button variant={creating ? 'outline' : 'primary'} onClick={() => setCreating((v) => !v)}>
-          {creating ? 'Cancelar' : '+ Nuevo cliente'}
-        </Button>
+        {isFormOpen ? (
+          <Button variant="outline" onClick={closeForm}>
+            Cancelar
+          </Button>
+        ) : (
+          <Button onClick={() => setCreating(true)}>+ Nuevo cliente</Button>
+        )}
       </div>
 
-      {creating ? (
+      {isFormOpen ? (
         <FormCard maxWidth={520}>
           <form onSubmit={handleCreate}>
             <div className="grid cols-2">
-              <Field label="Nombre" required value={form.firstName} onChange={update('firstName')} />
-              <Field label="Apellido" required value={form.lastName} onChange={update('lastName')} />
+              <Field label="Nombre" required placeholder="Agustín" value={form.firstName} onChange={update('firstName')} />
+              <Field label="Apellido" required placeholder="Sentis" value={form.lastName} onChange={update('lastName')} />
             </div>
             <div className="grid cols-2">
-              <Field label="DNI" required value={form.dni} onChange={update('dni')} />
-              <Field label="Teléfono" required value={form.phoneNumber} onChange={update('phoneNumber')} />
+              <Field label="DNI" required placeholder="43380990" value={form.dni} onChange={update('dni')} />
+              <Field
+                label="Teléfono"
+                required
+                placeholder="+54 9 11 2200-1147"
+                value={form.phoneNumber}
+                onChange={update('phoneNumber')}
+              />
             </div>
-            <Field label="Email" type="email" required value={form.email} onChange={update('email')} />
-            <Field label="Contraseña temporal" type="password" required value={form.password} onChange={update('password')} />
+            <Field label="Email" type="email" required placeholder="agustin.sentis@gmail.com" value={form.email} onChange={update('email')} />
+            <Field
+              label="Contraseña temporal"
+              type="password"
+              required={editingId === null}
+              placeholder={editingId !== null ? 'Dejar en blanco para no cambiarla' : 'Se le pedirá cambiarla en el primer ingreso'}
+              value={form.password}
+              onChange={update('password')}
+            />
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'Creando…' : 'Crear cliente'}
+              {submitting ? 'Guardando…' : editingId !== null ? 'Guardar cambios' : 'Crear cliente'}
             </Button>
           </form>
         </FormCard>
@@ -128,9 +171,14 @@ export function AdminClients() {
             { label: 'Email', render: (c) => c.email },
           ]}
           renderActions={(client) => (
-            <button className="btn-text danger" onClick={() => setPendingDelete(client)}>
-              Eliminar
-            </button>
+            <div className="actions">
+              <button className="btn-text" onClick={() => startEdit(client)}>
+                Modificar
+              </button>
+              <button className="btn-text danger" onClick={() => setPendingDelete(client)}>
+                Eliminar
+              </button>
+            </div>
           )}
         />
       )}

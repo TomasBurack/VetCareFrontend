@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { veterinarianApi } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import { FormCard } from '../../components/FormCard';
@@ -21,11 +21,20 @@ const EMPTY_FORM = {
 };
 
 export function AdminVetForm() {
+  const { id } = useParams();
+  const isEditing = !!id;
   const navigate = useNavigate();
   const toast = useToast();
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) return;
+    veterinarianApi.getById(id).then((vet) => {
+      setForm({ ...EMPTY_FORM, ...vet, password: '' });
+    });
+  }, [id, isEditing]);
 
   function update(field) {
     return (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -36,11 +45,18 @@ export function AdminVetForm() {
     setErrors([]);
     setSubmitting(true);
     try {
-      await veterinarianApi.create(form);
-      toast.success('Veterinario creado correctamente.');
+      if (isEditing) {
+        const payload = { ...form };
+        if (!payload.password) delete payload.password;
+        await veterinarianApi.update(id, payload);
+        toast.success('Veterinario actualizado correctamente.');
+      } else {
+        await veterinarianApi.create(form);
+        toast.success('Veterinario creado correctamente.');
+      }
       navigate('/veterinarios');
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo crear el veterinario.'];
+      const messages = err instanceof ApiError ? err.messages : ['No se pudo guardar el veterinario.'];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -50,8 +66,10 @@ export function AdminVetForm() {
 
   return (
     <>
-      <h1 className="page-title">Nuevo veterinario</h1>
-      <p className="page-sub">Crea una cuenta de veterinario con acceso al panel.</p>
+      <h1 className="page-title">{isEditing ? 'Editar veterinario' : 'Nuevo veterinario'}</h1>
+      <p className="page-sub">
+        {isEditing ? 'Modifica los datos de la cuenta del veterinario.' : 'Crea una cuenta de veterinario con acceso al panel.'}
+      </p>
       <div className="toolbar">
         <Button variant="outline" onClick={() => navigate('/veterinarios')}>
           Cancelar
@@ -79,8 +97,8 @@ export function AdminVetForm() {
           <Field
             label="Contraseña temporal"
             type="password"
-            required
-            placeholder="Se le pedirá cambiarla en el primer ingreso"
+            required={!isEditing}
+            placeholder={isEditing ? 'Dejar en blanco para no cambiarla' : 'Se le pedirá cambiarla en el primer ingreso'}
             value={form.password}
             onChange={update('password')}
           />
@@ -107,7 +125,7 @@ export function AdminVetForm() {
           </div>
 
           <Button type="submit" disabled={submitting}>
-            {submitting ? 'Creando…' : 'Crear veterinario'}
+            {submitting ? 'Guardando…' : isEditing ? 'Guardar cambios' : 'Crear veterinario'}
           </Button>
         </form>
       </FormCard>

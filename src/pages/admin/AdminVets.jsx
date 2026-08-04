@@ -73,9 +73,14 @@ export function AdminVets() {
           { label: 'Especialidad', render: (v) => v.speciality },
         ]}
         renderActions={(vet) => (
-          <button className="btn-text danger" onClick={() => setPendingDelete(vet)}>
-            Eliminar
-          </button>
+          <div className="actions">
+            <Link className="btn-text" to={`/veterinarios/editar/${vet.id}`}>
+              Modificar
+            </Link>
+            <button className="btn-text danger" onClick={() => setPendingDelete(vet)}>
+              Eliminar
+            </button>
+          </div>
         )}
       />
 

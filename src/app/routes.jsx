@@ -75,6 +75,7 @@ export const router = createBrowserRouter([
               { path: '/clientes', element: <AdminClients /> },
               { path: '/veterinarios', element: <AdminVets /> },
               { path: '/veterinarios/nuevo', element: <AdminVetForm /> },
+              { path: '/veterinarios/editar/:id', element: <AdminVetForm /> },
             ],
           },
         ],

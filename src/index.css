@@ -263,6 +263,12 @@ textarea.f:focus {
   color: var(--terracotta);
 }
 
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .btn-text {
   height: 32px;
   padding: 0 0.8rem;
@@ -276,6 +282,7 @@ textarea.f:focus {
   color: var(--ink);
   font-size: 0.85rem;
   opacity: 0.8;
+  text-decoration: none;
 }
 .btn-text:hover {
   opacity: 1;
