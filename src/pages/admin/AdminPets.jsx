@@ -91,6 +91,8 @@ export function AdminPets() {
   function closeForm() {
     setForm(EMPTY_FORM);
     setEditingId(null);
+    setBreeds([]);
+    setBreedsAvailable(true);
   }
 
   async function handleSubmit(e) {
