@@ -22,7 +22,6 @@ const ROLE_NAV = {
   Administrator: {
     tag: 'ADMINISTRADOR',
     links: [
-      { to: '/usuarios', label: 'Todos los usuarios' },
       { to: '/clientes', label: 'Clientes' },
       { to: '/veterinarios', label: 'Veterinarios' },
       { to: '/turnos', label: 'Turnos (global)' },

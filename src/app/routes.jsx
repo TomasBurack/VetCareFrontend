@@ -18,7 +18,6 @@ import { ClientShiftForm } from '../pages/client/ClientShiftForm';
 
 import { VetShifts } from '../pages/veterinarian/VetShifts';
 
-import { AdminAllUsers } from '../pages/admin/AdminAllUsers';
 import { AdminClients } from '../pages/admin/AdminClients';
 import { AdminVets } from '../pages/admin/AdminVets';
 import { AdminVetForm } from '../pages/admin/AdminVetForm';
@@ -58,10 +57,7 @@ export const router = createBrowserRouter([
 
           {
             element: <RoleRoute roles={['Administrator']} />,
-            children: [
-              { path: '/usuarios', element: <AdminAllUsers /> },
-              { path: '/turnos', element: <AdminShifts /> },
-            ],
+            children: [{ path: '/turnos', element: <AdminShifts /> }],
           },
 
           {
