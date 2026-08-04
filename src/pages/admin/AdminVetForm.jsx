@@ -52,6 +52,11 @@ export function AdminVetForm() {
     <>
       <h1 className="page-title">Nuevo veterinario</h1>
       <p className="page-sub">Crea una cuenta de veterinario con acceso al panel.</p>
+      <div className="toolbar">
+        <Button variant="outline" onClick={() => navigate('/veterinarios')}>
+          Cancelar
+        </Button>
+      </div>
       <FormCard maxWidth={520}>
         <ErrorBanner messages={errors} />
         <div className="section-title">Datos personales</div>
@@ -86,7 +91,7 @@ export function AdminVetForm() {
               label="Matrícula"
               required
               style={{ fontFamily: 'var(--font-mono)' }}
-              placeholder="MP 5104"
+              placeholder="5383"
               value={form.enrollment}
               onChange={update('enrollment')}
             />
@@ -101,14 +106,9 @@ export function AdminVetForm() {
             </Field>
           </div>
 
-          <div style={{ display: 'flex', gap: '.6rem' }}>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? 'Creando…' : 'Crear veterinario'}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/veterinarios')}>
-              Cancelar
-            </Button>
-          </div>
+          <Button type="submit" disabled={submitting}>
+            {submitting ? 'Creando…' : 'Crear veterinario'}
+          </Button>
         </form>
       </FormCard>
     </>

@@ -115,8 +115,8 @@ export function AdminShifts() {
                   </option>
                 ))}
               </select>
-              <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(shift)}>
-                ✕
+              <button className="btn-text danger" onClick={() => setPendingDelete(shift)}>
+                Eliminar
               </button>
             </div>
           )

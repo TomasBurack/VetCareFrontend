@@ -73,8 +73,8 @@ export function AdminVets() {
           { label: 'Especialidad', render: (v) => v.speciality },
         ]}
         renderActions={(vet) => (
-          <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(vet)}>
-            ✕
+          <button className="btn-text danger" onClick={() => setPendingDelete(vet)}>
+            Eliminar
           </button>
         )}
       />

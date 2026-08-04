@@ -263,6 +263,29 @@ textarea.f:focus {
   color: var(--terracotta);
 }
 
+.btn-text {
+  height: 32px;
+  padding: 0 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+.btn-text:hover {
+  opacity: 1;
+  border-color: var(--primary);
+}
+.btn-text.danger:hover {
+  border-color: var(--terracotta);
+  color: var(--terracotta);
+}
+
 /* ---------- cards ---------- */
 .ficha {
   background: var(--card);

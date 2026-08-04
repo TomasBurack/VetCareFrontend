@@ -126,8 +126,8 @@ export function AdminClients() {
             { label: 'Email', render: (c) => c.email },
           ]}
           renderActions={(client) => (
-            <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(client)}>
-              ✕
+            <button className="btn-text danger" onClick={() => setPendingDelete(client)}>
+              Eliminar
             </button>
           )}
         />

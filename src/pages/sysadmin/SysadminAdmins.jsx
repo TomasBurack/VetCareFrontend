@@ -122,8 +122,8 @@ export function SysadminAdmins() {
             { label: 'Email', render: (a) => a.email },
           ]}
           renderActions={(admin) => (
-            <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(admin)}>
-              ✕
+            <button className="btn-text danger" onClick={() => setPendingDelete(admin)}>
+              Eliminar
             </button>
           )}
         />
