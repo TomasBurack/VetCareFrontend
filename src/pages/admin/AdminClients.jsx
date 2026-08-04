@@ -14,6 +14,7 @@ const EMPTY_FORM = { firstName: '', lastName: '', dni: '', phoneNumber: '', emai
 export function AdminClients() {
   const toast = useToast();
   const [clients, setClients] = useState([]);
+  const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [creating, setCreating] = useState(false);
@@ -70,12 +71,31 @@ export function AdminClients() {
     }
   }
 
+  const filtered = clients.filter((c) => {
+    const q = search.toLowerCase();
+    return (
+      `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
+      c.dni?.toLowerCase().includes(q) ||
+      c.email?.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <>
-      <h1 className="page-title">Clientes</h1>
-      <p className="page-sub">Alta, edición y baja de cuentas de clientes.</p>
+      <h1 className="page-title">{creating ? 'Nuevo cliente' : 'Clientes'}</h1>
+      <p className="page-sub">
+        {creating ? 'Crea una cuenta de cliente con acceso al panel.' : 'Alta, edición y baja de cuentas de clientes.'}
+      </p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
+        {!creating && (
+          <input
+            className="search"
+            placeholder="Buscar por nombre, DNI o email…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        )}
         <Button onClick={() => setCreating((v) => !v)}>{creating ? 'Cancelar' : '+ Nuevo cliente'}</Button>
       </div>
 
@@ -99,7 +119,7 @@ export function AdminClients() {
         </FormCard>
       ) : (
         <EntityTable
-          rows={clients}
+          rows={filtered}
           columns={[
             { label: 'Nombre', render: (c) => `${c.firstName} ${c.lastName}` },
             { label: 'DNI', render: (c) => c.dni },

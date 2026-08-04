@@ -14,6 +14,7 @@ const EMPTY_FORM = { firstName: '', lastName: '', dni: '', phoneNumber: '', emai
 export function SysadminAdmins() {
   const toast = useToast();
   const [admins, setAdmins] = useState([]);
+  const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [creating, setCreating] = useState(false);
@@ -70,12 +71,27 @@ export function SysadminAdmins() {
     }
   }
 
+  const filtered = admins.filter((a) => {
+    const q = search.toLowerCase();
+    return `${a.firstName} ${a.lastName}`.toLowerCase().includes(q) || a.email?.toLowerCase().includes(q);
+  });
+
   return (
     <>
-      <h1 className="page-title">Administradores</h1>
-      <p className="page-sub">Alta, edición y baja de cuentas de administrador.</p>
+      <h1 className="page-title">{creating ? 'Nuevo administrador' : 'Administradores'}</h1>
+      <p className="page-sub">
+        {creating ? 'Crea una cuenta de administrador con acceso al panel.' : 'Alta, edición y baja de cuentas de administrador.'}
+      </p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
+        {!creating && (
+          <input
+            className="search"
+            placeholder="Buscar por nombre o email…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        )}
         <Button onClick={() => setCreating((v) => !v)}>{creating ? 'Cancelar' : '+ Nuevo administrador'}</Button>
       </div>
 
@@ -99,7 +115,7 @@ export function SysadminAdmins() {
         </FormCard>
       ) : (
         <EntityTable
-          rows={admins}
+          rows={filtered}
           columns={[
             { label: 'Nombre', render: (a) => `${a.firstName} ${a.lastName}` },
             { label: 'DNI', render: (a) => a.dni },
