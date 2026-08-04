@@ -14,7 +14,6 @@ const EMPTY_FORM = { firstName: '', lastName: '', dni: '', phoneNumber: '', emai
 export function SysadminAdmins() {
   const toast = useToast();
   const [admins, setAdmins] = useState([]);
-  const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [creating, setCreating] = useState(false);
@@ -71,28 +70,17 @@ export function SysadminAdmins() {
     }
   }
 
-  const filtered = admins.filter((a) => {
-    const q = search.toLowerCase();
-    return `${a.firstName} ${a.lastName}`.toLowerCase().includes(q) || a.email?.toLowerCase().includes(q);
-  });
-
   return (
     <>
       <h1 className="page-title">Administradores</h1>
       <p className="page-sub">Alta, edición y baja de cuentas de administrador.</p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
-        <input
-          className="search"
-          placeholder="Buscar por nombre o email…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
         <Button onClick={() => setCreating((v) => !v)}>{creating ? 'Cancelar' : '+ Nuevo administrador'}</Button>
       </div>
 
-      {creating && (
-        <FormCard maxWidth={520} align="left">
+      {creating ? (
+        <FormCard maxWidth={520}>
           <form onSubmit={handleCreate}>
             <div className="grid cols-2">
               <Field label="Nombre" required value={form.firstName} onChange={update('firstName')} />
@@ -109,21 +97,21 @@ export function SysadminAdmins() {
             </Button>
           </form>
         </FormCard>
+      ) : (
+        <EntityTable
+          rows={admins}
+          columns={[
+            { label: 'Nombre', render: (a) => `${a.firstName} ${a.lastName}` },
+            { label: 'DNI', render: (a) => a.dni },
+            { label: 'Email', render: (a) => a.email },
+          ]}
+          renderActions={(admin) => (
+            <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(admin)}>
+              ✕
+            </button>
+          )}
+        />
       )}
-
-      <EntityTable
-        rows={filtered}
-        columns={[
-          { label: 'Nombre', render: (a) => `${a.firstName} ${a.lastName}` },
-          { label: 'DNI', render: (a) => a.dni },
-          { label: 'Email', render: (a) => a.email },
-        ]}
-        renderActions={(admin) => (
-          <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(admin)}>
-            ✕
-          </button>
-        )}
-      />
 
       {pendingDelete && (
         <ConfirmDeleteOverlay
