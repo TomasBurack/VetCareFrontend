@@ -8,13 +8,7 @@ import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { useToast } from '../../context/useToast';
-
-const TYPE_LABELS = {
-  Canine: 'Perro',
-  Feline: 'Gato',
-  Avian: 'Ave',
-  Reptile: 'Reptil',
-};
+import { useLanguage } from '../../i18n/useLanguage';
 
 const TYPE_EMOJIS = {
   Canine: '🐾',
@@ -25,6 +19,7 @@ const TYPE_EMOJIS = {
 
 export function ClientPets() {
   const toast = useToast();
+  const { t } = useLanguage();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
@@ -50,10 +45,10 @@ export function ClientPets() {
     try {
       await petApi.remove(pendingDelete.idPet);
       setPendingDelete(null);
-      toast.success('Mascota eliminada correctamente.');
+      toast.success(t.clientPets.deleted);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar la mascota.'];
+      const messages = err instanceof ApiError ? err.messages : [t.clientPets.deleteError];
       setErrors(messages);
       toast.error(messages[0]);
       setPendingDelete(null);
@@ -62,21 +57,21 @@ export function ClientPets() {
 
   return (
     <>
-      <h1 className="page-title">Mis mascotas</h1>
-      <p className="page-sub">Registrá y administrá las mascotas asociadas a tu cuenta.</p>
+      <h1 className="page-title">{t.clientPets.title}</h1>
+      <p className="page-sub">{t.clientPets.subtitle}</p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
         <div />
         <Link to="/mis-mascotas/nueva">
-          <Button>+ Agregar mascota</Button>
+          <Button>{t.clientPets.add}</Button>
         </Link>
       </div>
 
       {!loading && pets.length === 0 && (
         <EmptyState
           icon={<PawPrint size={28} />}
-          message="Todavía no registraste mascotas"
-          subtitle="Agregá tu primera mascota para empezar a solicitar turnos."
+          message={t.clientPets.emptyTitle}
+          subtitle={t.clientPets.emptySubtitle}
         />
       )}
 
@@ -87,10 +82,10 @@ export function ClientPets() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ fontSize: '1.6rem' }}>{TYPE_EMOJIS[pet.typePet] ?? '🐾'}</div>
                 <div className="actions">
-                  <Link to={`/mis-mascotas/${pet.idPet}/editar`} className="icon-btn" title="Editar">
+                  <Link to={`/mis-mascotas/${pet.idPet}/editar`} className="icon-btn" title={t.common.edit}>
                     ✎
                   </Link>
-                  <button className="icon-btn danger" title="Eliminar" onClick={() => setPendingDelete(pet)}>
+                  <button className="icon-btn danger" title={t.common.delete} onClick={() => setPendingDelete(pet)}>
                     ✕
                   </button>
                 </div>
@@ -99,10 +94,10 @@ export function ClientPets() {
                 {pet.name}
               </div>
               <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)' }}>
-                {TYPE_LABELS[pet.typePet] ?? pet.typePet} · {pet.breed}
+                {t.pets.types[pet.typePet] ?? pet.typePet} · {pet.breed}
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '.72rem', marginTop: '.4rem', color: 'var(--sage-muted)' }}>
-                {pet.age} años
+                {pet.age} {t.common.years}
               </div>
             </div>
           </div>
@@ -111,8 +106,8 @@ export function ClientPets() {
 
       {pendingDelete && (
         <ConfirmDeleteOverlay
-          title={`Eliminar a ${pendingDelete.name}`}
-          description="Esta acción elimina la mascota y su historial de turnos asociado. No se puede deshacer."
+          title={t.pets.deleteTitle(pendingDelete.name)}
+          description={t.pets.deleteDescription}
           onCancel={() => setPendingDelete(null)}
           onConfirm={confirmDelete}
         />

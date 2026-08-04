@@ -8,12 +8,14 @@ import { useAuth } from '../../context/useAuth';
 import { ROLE_HOME } from '../../context/roleHome';
 import { ApiError } from '../../api/client';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 export function Login() {
   const { login, verifyTwoFactor } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,11 +38,11 @@ export function Login() {
       if (result.twoFactorRequired) {
         setPendingToken(result.pendingToken);
       } else {
-        toast.success('Sesión iniciada correctamente.');
+        toast.success(t.auth.loginSuccess);
         goToDestination(result);
       }
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo iniciar sesión. Intentá de nuevo.'];
+      const messages = err instanceof ApiError ? err.messages : [t.auth.loginErrorRetry];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -54,10 +56,10 @@ export function Login() {
     setSubmitting(true);
     try {
       const session = await verifyTwoFactor(pendingToken, code);
-      toast.success('Sesión iniciada correctamente.');
+      toast.success(t.auth.loginSuccess);
       goToDestination(session);
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['Código inválido. Intentá de nuevo.'];
+      const messages = err instanceof ApiError ? err.messages : [t.auth.invalidCodeRetry];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -67,22 +69,19 @@ export function Login() {
 
   if (pendingToken) {
     return (
-      <AuthCard
-        title="Verificación en dos pasos"
-        subtitle="Ingresá el código de 6 dígitos de tu app de autenticación, o un código de recuperación."
-      >
+      <AuthCard title={t.auth.twoFactorTitle} subtitle={t.auth.twoFactorSubtitle}>
         <ErrorBanner messages={errors} />
         <form onSubmit={handleVerifySubmit}>
           <Field
-            label="Código"
+            label={t.auth.codeLabel}
             required
             autoFocus
-            placeholder="123456"
+            placeholder={t.auth.codePlaceholder}
             value={code}
             onChange={(e) => setCode(e.target.value)}
           />
           <Button type="submit" disabled={submitting} style={{ width: '100%', justifyContent: 'center' }}>
-            {submitting ? 'Verificando…' : 'Verificar'}
+            {submitting ? t.twoFactor.verifying : t.twoFactor.verifySubmit}
           </Button>
         </form>
         <div className="auth-footer">
@@ -95,7 +94,7 @@ export function Login() {
             }}
             style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}
           >
-            Volver a iniciar sesión
+            {t.auth.backToLogin}
           </button>
         </div>
       </AuthCard>
@@ -103,36 +102,36 @@ export function Login() {
   }
 
   return (
-    <AuthCard title="Iniciar sesión" subtitle="Accedé a tus turnos, mascotas y perfil.">
+    <AuthCard title={t.auth.loginTitle} subtitle={t.auth.loginSubtitleShort}>
       <ErrorBanner messages={errors} />
       <form onSubmit={handleSubmit}>
         <Field
-          label="Email"
+          label={t.common.email}
           type="email"
           required
-          placeholder="nombre@correo.com"
+          placeholder={t.common.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <Field
-          label="Contraseña"
+          label={t.common.password}
           type="password"
           required
-          placeholder="••••••••"
+          placeholder={t.common.passwordPlaceholder}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
         <div style={{ textAlign: 'right', marginTop: '-0.7rem', marginBottom: '1.1rem' }}>
           <Link to="/forgot-password" style={{ fontSize: '.78rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>
-            ¿Olvidaste tu contraseña?
+            {t.auth.forgotPassword}
           </Link>
         </div>
         <Button type="submit" disabled={submitting} style={{ width: '100%', justifyContent: 'center' }}>
-          {submitting ? 'Ingresando…' : 'Ingresar'}
+          {submitting ? t.auth.loggingIn : t.auth.loginSubmit}
         </Button>
       </form>
       <div className="auth-footer">
-        ¿No tenés cuenta? <Link to="/register">Creá una</Link>
+        {t.auth.noAccount} <Link to="/register">{t.auth.createOne}</Link>
       </div>
     </AuthCard>
   );

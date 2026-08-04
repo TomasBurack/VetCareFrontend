@@ -8,6 +8,7 @@ import { useAuth } from '../../context/useAuth';
 import { ROLE_HOME } from '../../context/roleHome';
 import { ApiError } from '../../api/client';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 const EMPTY_FORM = {
   firstName: '',
@@ -22,6 +23,7 @@ export function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useLanguage();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState([]);
@@ -37,10 +39,10 @@ export function Register() {
     setSubmitting(true);
     try {
       const session = await register(form);
-      toast.success('Cuenta creada correctamente.');
+      toast.success(t.auth.registerCreated);
       navigate(ROLE_HOME[session.role] ?? '/', { replace: true });
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo crear la cuenta. Intentá de nuevo.'];
+      const messages = err instanceof ApiError ? err.messages : [t.auth.registerErrorRetry];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -49,48 +51,63 @@ export function Register() {
   }
 
   return (
-    <AuthCard
-      title="Crear cuenta"
-      subtitle="Te registrás como cliente. Los roles de veterinario y administrador se asignan desde el panel de administración."
-    >
+    <AuthCard title={t.auth.registerTitle} subtitle={t.auth.registerSubtitleLong}>
       <ErrorBanner messages={errors} />
       <form onSubmit={handleSubmit}>
         <div className="grid cols-2">
-          <Field label="Nombre" required placeholder="Agustín" value={form.firstName} onChange={update('firstName')} />
-          <Field label="Apellido" required placeholder="Sentis" value={form.lastName} onChange={update('lastName')} />
+          <Field
+            label={t.common.firstName}
+            required
+            placeholder={t.auth.placeholders.firstName}
+            value={form.firstName}
+            onChange={update('firstName')}
+          />
+          <Field
+            label={t.common.lastName}
+            required
+            placeholder={t.auth.placeholders.lastName}
+            value={form.lastName}
+            onChange={update('lastName')}
+          />
         </div>
         <div className="grid cols-2">
-          <Field label="DNI" required placeholder="30123456" value={form.dni} onChange={update('dni')} />
           <Field
-            label="Teléfono"
+            label={t.common.dni}
             required
-            placeholder="+54 9 11 5555-0100"
+            placeholder={t.auth.placeholders.dni}
+            value={form.dni}
+            onChange={update('dni')}
+          />
+          <Field
+            label={t.common.phone}
+            required
+            placeholder={t.auth.placeholders.phone}
             value={form.phoneNumber}
             onChange={update('phoneNumber')}
           />
         </div>
         <Field
-          label="Email"
+          label={t.common.email}
           type="email"
           required
-          placeholder="nombre@correo.com"
+          placeholder={t.common.emailPlaceholder}
           value={form.email}
           onChange={update('email')}
         />
         <Field
-          label="Contraseña"
+          label={t.common.password}
           type="password"
           required
-          placeholder="Mínimo 8 caracteres"
+          placeholder={t.common.minEightChars}
           value={form.password}
           onChange={update('password')}
         />
         <Button type="submit" disabled={submitting} style={{ width: '100%', justifyContent: 'center', marginTop: '.25rem' }}>
-          {submitting ? 'Creando cuenta…' : 'Crear cuenta'}
+          {submitting ? t.auth.registering : t.auth.registerSubmit}
         </Button>
       </form>
       <div className="auth-footer">
-        ¿Ya tenés cuenta? <Link to="/login">Iniciá sesión</Link>
+        {t.auth.hasAccount} <Link to="/login">{t.auth.signInLink}</Link>
       </div>
     </AuthCard>
   );

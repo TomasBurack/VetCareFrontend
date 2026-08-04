@@ -1,4 +1,8 @@
+import { useLanguage } from '../i18n/useLanguage';
+
 export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
+  const { t } = useLanguage();
+
   return (
     <div className="shifts-table-wrap">
       <table className="shifts-table">
@@ -7,7 +11,7 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
             {columns.map((col) => (
               <th key={col.label}>{col.label}</th>
             ))}
-            {renderActions && <th>Acciones</th>}
+            {renderActions && <th>{t.common.actions}</th>}
           </tr>
         </thead>
         <tbody>
@@ -18,7 +22,7 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
                   {col.render(row)}
                 </td>
               ))}
-              {renderActions && <td data-label="Acciones">{renderActions(row)}</td>}
+              {renderActions && <td data-label={t.common.actions}>{renderActions(row)}</td>}
             </tr>
           ))}
         </tbody>

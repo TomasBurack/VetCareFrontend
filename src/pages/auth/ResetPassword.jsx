@@ -7,11 +7,13 @@ import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
 import { ApiError } from '../../api/client';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 export function ResetPassword() {
   const { resetPassword } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
 
@@ -23,17 +25,17 @@ export function ResetPassword() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      setErrors(['Las contraseñas no coinciden.']);
+      setErrors([t.auth.passwordsDontMatch]);
       return;
     }
     setErrors([]);
     setSubmitting(true);
     try {
       await resetPassword(token, newPassword);
-      toast.success('Contraseña actualizada correctamente.');
+      toast.success(t.auth.resetSuccessShort);
       navigate('/login', { replace: true });
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo actualizar la contraseña.'];
+      const messages = err instanceof ApiError ? err.messages : [t.auth.resetErrorShort];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -42,31 +44,31 @@ export function ResetPassword() {
   }
 
   return (
-    <AuthCard title="Restablecer contraseña" subtitle="El enlace de tu email incluye un token válido por tiempo limitado.">
+    <AuthCard title={t.auth.resetTitle} subtitle={t.auth.resetSubtitleToken}>
       <ErrorBanner messages={errors} />
       <form onSubmit={handleSubmit}>
         <Field
-          label="Nueva contraseña"
+          label={t.auth.newPassword}
           type="password"
           required
-          placeholder="Mínimo 8 caracteres"
+          placeholder={t.common.minEightChars}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
         />
         <Field
-          label="Confirmar contraseña"
+          label={t.auth.confirmPassword}
           type="password"
           required
-          placeholder="Repetí la contraseña"
+          placeholder={t.auth.repeatPassword}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
         <Button type="submit" disabled={submitting} style={{ width: '100%', justifyContent: 'center' }}>
-          {submitting ? 'Actualizando…' : 'Actualizar contraseña'}
+          {submitting ? t.auth.resetting2 : t.auth.resetSubmitLong}
         </Button>
       </form>
       <div className="auth-footer">
-        <Link to="/login">Volver a iniciar sesión</Link>
+        <Link to="/login">{t.auth.backToLogin}</Link>
       </div>
     </AuthCard>
   );

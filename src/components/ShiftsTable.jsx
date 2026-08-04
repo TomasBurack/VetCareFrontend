@@ -2,9 +2,11 @@ import { useMemo, useState } from 'react';
 import { Badge } from './Badge';
 import { TruncatedText } from './TruncatedText';
 import { formatShiftDate } from '../utils/date';
+import { useLanguage } from '../i18n/useLanguage';
 
 export function ShiftsTable({ shifts, showVeterinarian = false, renderActions }) {
   const [dateSort, setDateSort] = useState('desc');
+  const { t } = useLanguage();
 
   const sortedShifts = useMemo(() => {
     const factor = dateSort === 'asc' ? 1 : -1;
@@ -20,14 +22,14 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions })
       <table className="shifts-table">
         <thead>
           <tr>
-            <th>Mascota</th>
-            <th>Motivo</th>
-            {showVeterinarian && <th>Veterinario</th>}
+            <th>{t.shifts.pet}</th>
+            <th>{t.shifts.reasonShort}</th>
+            {showVeterinarian && <th>{t.shifts.veterinarian}</th>}
             <th className="sortable" onClick={toggleDateSort}>
-              Fecha <span className="sort-arrow">{dateSort === 'asc' ? '↑' : '↓'}</span>
+              {t.shifts.date} <span className="sort-arrow">{dateSort === 'asc' ? '↑' : '↓'}</span>
             </th>
-            <th>Estado</th>
-            {renderActions && <th>Acciones</th>}
+            <th>{t.shifts.status}</th>
+            {renderActions && <th>{t.common.actions}</th>}
           </tr>
         </thead>
         <tbody>
@@ -35,16 +37,16 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions })
             const status = shift.status?.toLowerCase();
             return (
               <tr key={shift.id}>
-                <td data-label="Mascota">{shift.petName}</td>
-                <td data-label="Motivo">
-                  <TruncatedText text={shift.description} title="Motivo de la consulta" />
+                <td data-label={t.shifts.pet}>{shift.petName}</td>
+                <td data-label={t.shifts.reasonShort}>
+                  <TruncatedText text={shift.description} title={t.shifts.reason} />
                 </td>
-                {showVeterinarian && <td data-label="Veterinario">{shift.veterinarianName}</td>}
-                <td data-label="Fecha">{formatShiftDate(shift.dateShift)}</td>
-                <td data-label="Estado">
+                {showVeterinarian && <td data-label={t.shifts.veterinarian}>{shift.veterinarianName}</td>}
+                <td data-label={t.shifts.date}>{formatShiftDate(shift.dateShift)}</td>
+                <td data-label={t.shifts.status}>
                   <Badge status={status} />
                 </td>
-                {renderActions && <td data-label="Acciones">{renderActions(shift)}</td>}
+                {renderActions && <td data-label={t.common.actions}>{renderActions(shift)}</td>}
               </tr>
             );
           })}

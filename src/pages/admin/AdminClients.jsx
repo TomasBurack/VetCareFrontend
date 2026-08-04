@@ -8,11 +8,13 @@ import { Field } from '../../components/Field';
 import { FormCard } from '../../components/FormCard';
 import { Button } from '../../components/Button';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 const EMPTY_FORM = { firstName: '', lastName: '', dni: '', phoneNumber: '', email: '', password: '' };
 
 export function AdminClients() {
   const toast = useToast();
+  const { t } = useLanguage();
   const [clients, setClients] = useState([]);
   const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
@@ -28,12 +30,13 @@ export function AdminClients() {
       const data = await clientApi.all();
       setClients(data ?? []);
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudieron cargar los clientes.']);
+      setErrors(err instanceof ApiError ? err.messages : [t.adminClients.loadError]);
     }
   }
 
   useEffect(() => {
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch on mount only; `load` closes over `t` but must not re-run on language change
   }, []);
 
   function update(field) {
@@ -49,17 +52,17 @@ export function AdminClients() {
         const payload = { ...form };
         if (!payload.password) delete payload.password;
         await clientApi.update(editingId, payload);
-        toast.success('Cliente actualizado correctamente.');
+        toast.success(t.adminClients.updated);
       } else {
         await clientApi.create(form);
-        toast.success('Cliente creado correctamente.');
+        toast.success(t.adminClients.created);
       }
       setForm(EMPTY_FORM);
       setCreating(false);
       setEditingId(null);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo guardar el cliente.'];
+      const messages = err instanceof ApiError ? err.messages : [t.adminClients.saveError];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -83,10 +86,10 @@ export function AdminClients() {
     try {
       await clientApi.remove(pendingDelete.id);
       setPendingDelete(null);
-      toast.success('Cliente eliminado correctamente.');
+      toast.success(t.adminClients.deleted);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar el cliente.'];
+      const messages = err instanceof ApiError ? err.messages : [t.adminClients.deleteError];
       setErrors(messages);
       toast.error(messages[0]);
       setPendingDelete(null);
@@ -104,30 +107,36 @@ export function AdminClients() {
 
   return (
     <>
-      <h1 className="page-title">{editingId !== null ? 'Editar cliente' : creating ? 'Nuevo cliente' : 'Clientes'}</h1>
+      <h1 className="page-title">
+        {editingId !== null
+          ? t.adminClients.titleEdit
+          : creating
+            ? t.adminClients.titleNew
+            : t.adminClients.title}
+      </h1>
       <p className="page-sub">
         {editingId !== null
-          ? 'Modifica los datos de la cuenta del cliente.'
+          ? t.adminClients.subtitleEdit
           : creating
-            ? 'Crea una cuenta de cliente con acceso al panel.'
-            : 'Alta, edición y baja de cuentas de clientes.'}
+            ? t.adminClients.subtitleNew
+            : t.adminClients.subtitle}
       </p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
         {!isFormOpen && (
           <input
             className="search"
-            placeholder="Buscar por nombre, DNI o email…"
+            placeholder={t.adminClients.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         )}
         {isFormOpen ? (
           <Button variant="outline" onClick={closeForm}>
-            Cancelar
+            {t.common.cancel}
           </Button>
         ) : (
-          <Button onClick={() => setCreating(true)}>+ Nuevo cliente</Button>
+          <Button onClick={() => setCreating(true)}>{t.adminClients.new}</Button>
         )}
       </div>
 
@@ -135,30 +144,59 @@ export function AdminClients() {
         <FormCard maxWidth={520}>
           <form onSubmit={handleCreate}>
             <div className="grid cols-2">
-              <Field label="Nombre" required placeholder="Agustín" value={form.firstName} onChange={update('firstName')} />
-              <Field label="Apellido" required placeholder="Sentis" value={form.lastName} onChange={update('lastName')} />
+              <Field
+                label={t.common.firstName}
+                required
+                placeholder={t.adminClients.placeholders.firstName}
+                value={form.firstName}
+                onChange={update('firstName')}
+              />
+              <Field
+                label={t.common.lastName}
+                required
+                placeholder={t.adminClients.placeholders.lastName}
+                value={form.lastName}
+                onChange={update('lastName')}
+              />
             </div>
             <div className="grid cols-2">
-              <Field label="DNI" required placeholder="43380990" value={form.dni} onChange={update('dni')} />
               <Field
-                label="Teléfono"
+                label={t.common.dni}
                 required
-                placeholder="+54 9 11 2200-1147"
+                placeholder={t.adminClients.placeholders.dni}
+                value={form.dni}
+                onChange={update('dni')}
+              />
+              <Field
+                label={t.common.phone}
+                required
+                placeholder={t.adminClients.placeholders.phone}
                 value={form.phoneNumber}
                 onChange={update('phoneNumber')}
               />
             </div>
-            <Field label="Email" type="email" required placeholder="agustin.sentis@gmail.com" value={form.email} onChange={update('email')} />
             <Field
-              label="Contraseña temporal"
+              label={t.common.email}
+              type="email"
+              required
+              placeholder={t.adminClients.placeholders.email}
+              value={form.email}
+              onChange={update('email')}
+            />
+            <Field
+              label={t.common.tempPassword}
               type="password"
               required={editingId === null}
-              placeholder={editingId !== null ? 'Dejar en blanco para no cambiarla' : 'Se le pedirá cambiarla en el primer ingreso'}
+              placeholder={editingId !== null ? t.common.passwordHintKeep : t.common.passwordHintNew}
               value={form.password}
               onChange={update('password')}
             />
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'Guardando…' : editingId !== null ? 'Guardar cambios' : 'Crear cliente'}
+              {submitting
+                ? t.common.saving
+                : editingId !== null
+                  ? t.common.saveChanges
+                  : t.adminClients.submit}
             </Button>
           </form>
         </FormCard>
@@ -166,17 +204,17 @@ export function AdminClients() {
         <EntityTable
           rows={filtered}
           columns={[
-            { label: 'Nombre', render: (c) => `${c.firstName} ${c.lastName}` },
-            { label: 'DNI', render: (c) => c.dni },
-            { label: 'Email', render: (c) => c.email },
+            { label: t.common.name, render: (c) => `${c.firstName} ${c.lastName}` },
+            { label: t.common.dni, render: (c) => c.dni },
+            { label: t.common.email, render: (c) => c.email },
           ]}
           renderActions={(client) => (
             <div className="actions">
               <button className="btn-text" onClick={() => startEdit(client)}>
-                Modificar
+                {t.common.edit}
               </button>
               <button className="btn-text danger" onClick={() => setPendingDelete(client)}>
-                Eliminar
+                {t.common.delete}
               </button>
             </div>
           )}
@@ -185,8 +223,8 @@ export function AdminClients() {
 
       {pendingDelete && (
         <ConfirmDeleteOverlay
-          title={`Eliminar a ${pendingDelete.firstName} ${pendingDelete.lastName}`}
-          description="Esta acción elimina la cuenta, sus mascotas y su historial de turnos. No se puede deshacer."
+          title={t.adminClients.deleteTitle(`${pendingDelete.firstName} ${pendingDelete.lastName}`)}
+          description={t.adminClients.deleteDescription}
           onCancel={() => setPendingDelete(null)}
           onConfirm={confirmDelete}
         />

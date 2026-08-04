@@ -8,12 +8,14 @@ import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { TwoFactorSettings } from '../../components/TwoFactorSettings';
-import { SPECIALITIES } from '../../constants/speciality';
+import { SPECIALITY_VALUES } from '../../constants/speciality';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 export function VetProfile() {
   const { logout } = useAuth();
   const toast = useToast();
+  const { t } = useLanguage();
   const [form, setForm] = useState(null);
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -43,9 +45,9 @@ export function VetProfile() {
     setSaving(true);
     try {
       await veterinarianApi.updateMyUser(form);
-      toast.success('Cambios guardados correctamente.');
+      toast.success(t.profile.saved);
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.'];
+      const messages = err instanceof ApiError ? err.messages : [t.profile.saveError];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -56,10 +58,10 @@ export function VetProfile() {
   async function handleDelete() {
     try {
       await veterinarianApi.deleteMyUser();
-      toast.success('Cuenta eliminada correctamente.');
+      toast.success(t.profile.deleted);
       logout();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar la cuenta.'];
+      const messages = err instanceof ApiError ? err.messages : [t.profile.deleteError];
       setErrors(messages);
       toast.error(messages[0]);
       setConfirmingDelete(false);
@@ -70,35 +72,35 @@ export function VetProfile() {
 
   return (
     <>
-      <h1 className="page-title">Mi perfil</h1>
-      <p className="page-sub">Tus datos profesionales.</p>
+      <h1 className="page-title">{t.profile.title}</h1>
+      <p className="page-sub">{t.profile.subtitleVet}</p>
       <FormCard maxWidth={520}>
         <ErrorBanner messages={errors} />
-        <div className="section-title">Datos personales</div>
+        <div className="section-title">{t.profile.personalData}</div>
         <form onSubmit={handleSubmit}>
           <div className="grid cols-2">
-            <Field label="Nombre" value={form.firstName} onChange={update('firstName')} />
-            <Field label="Apellido" value={form.lastName} onChange={update('lastName')} />
+            <Field label={t.common.firstName} value={form.firstName} onChange={update('firstName')} />
+            <Field label={t.common.lastName} value={form.lastName} onChange={update('lastName')} />
           </div>
           <div className="grid cols-2">
-            <Field label="DNI" style={{ fontFamily: 'var(--font-mono)' }} value={form.dni} onChange={update('dni')} />
-            <Field label="Teléfono" value={form.phoneNumber} onChange={update('phoneNumber')} />
+            <Field label={t.common.dni} style={{ fontFamily: 'var(--font-mono)' }} value={form.dni} onChange={update('dni')} />
+            <Field label={t.common.phone} value={form.phoneNumber} onChange={update('phoneNumber')} />
           </div>
-          <Field label="Email" type="email" value={form.email} onChange={update('email')} />
+          <Field label={t.common.email} type="email" value={form.email} onChange={update('email')} />
 
-          <div className="section-title">Datos profesionales</div>
+          <div className="section-title">{t.profile.professionalData}</div>
           <div className="grid cols-2">
             <Field
-              label="Matrícula"
+              label={t.adminVets.enrollment}
               style={{ fontFamily: 'var(--font-mono)' }}
               value={form.enrollment}
               onChange={update('enrollment')}
             />
-            <Field label="Especialidad">
+            <Field label={t.adminVets.speciality}>
               <select className="f" value={form.speciality} onChange={update('speciality')}>
-                {SPECIALITIES.map((speciality) => (
-                  <option key={speciality.value} value={speciality.value}>
-                    {speciality.label}
+                {SPECIALITY_VALUES.map((value) => (
+                  <option key={value} value={value}>
+                    {t.specialities[value]}
                   </option>
                 ))}
               </select>
@@ -107,24 +109,24 @@ export function VetProfile() {
 
           <div style={{ display: 'flex', gap: '.6rem' }}>
             <Button type="submit" disabled={saving}>
-              {saving ? 'Guardando…' : 'Guardar cambios'}
+              {saving ? t.common.saving : t.common.saveChanges}
             </Button>
           </div>
         </form>
         <TwoFactorSettings />
         <div className="danger-zone">
-          <div className="t">Eliminar cuenta</div>
-          <div className="sub">Perderás el acceso a tus turnos asignados. Solo un administrador puede recrear tu cuenta.</div>
+          <div className="t">{t.profile.deleteAccountHeading}</div>
+          <div className="sub">{t.profile.deleteNoteVet}</div>
           <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
-            Eliminar mi cuenta
+            {t.profile.deleteAccount}
           </Button>
         </div>
       </FormCard>
 
       {confirmingDelete && (
         <ConfirmDeleteOverlay
-          title="Eliminar mi cuenta"
-          description="Perderás el acceso a tus turnos asignados. No se puede deshacer."
+          title={t.profile.deleteAccountTitle}
+          description={t.profile.deleteConfirmVet}
           onCancel={() => setConfirmingDelete(false)}
           onConfirm={handleDelete}
         />

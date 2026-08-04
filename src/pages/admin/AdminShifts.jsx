@@ -5,22 +5,15 @@ import { ErrorBanner } from '../../components/ErrorBanner';
 import { ShiftsTable } from '../../components/ShiftsTable';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
-const TABS = [
-  { key: 'all', label: 'Todos' },
-  { key: 'pendant', label: 'Pendientes' },
-  { key: 'served', label: 'Atendidos' },
-  { key: 'canceled', label: 'Cancelados' },
-];
+const TAB_KEYS = ['all', 'pendant', 'served', 'canceled'];
 
 const STATUS_OPTIONS = ['Served', 'Canceled'];
-const STATUS_OPTION_LABELS = {
-  Served: 'Marcar como atendido',
-  Canceled: 'Cancelar turno',
-};
 
 export function AdminShifts() {
   const toast = useToast();
+  const { t } = useLanguage();
   const [shifts, setShifts] = useState([]);
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
@@ -32,22 +25,22 @@ export function AdminShifts() {
       const data = await shiftApi.listAdmin();
       setShifts(data ?? []);
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudieron cargar los turnos.']);
+      setErrors(err instanceof ApiError ? err.messages : [t.adminShifts.loadError]);
     }
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on mount, no client-side data source to derive from
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch on mount only; `load` closes over `t` but must not re-run on language change
   }, []);
 
   async function changeStatus(id, status) {
     try {
       await shiftApi.updateStatusAsAdmin(id, status);
-      toast.success(status === 'Served' ? 'Turno marcado como atendido.' : 'Turno cancelado correctamente.');
+      toast.success(status === 'Served' ? t.adminShifts.markedServed : t.adminShifts.canceled);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo actualizar el turno.'];
+      const messages = err instanceof ApiError ? err.messages : [t.adminShifts.updateError];
       setErrors(messages);
       toast.error(messages[0]);
     }
@@ -57,10 +50,10 @@ export function AdminShifts() {
     try {
       await shiftApi.removeAsAdmin(pendingDelete.id);
       setPendingDelete(null);
-      toast.success('Turno eliminado correctamente.');
+      toast.success(t.adminShifts.deleted);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar el turno.'];
+      const messages = err instanceof ApiError ? err.messages : [t.adminShifts.deleteError];
       setErrors(messages);
       toast.error(messages[0]);
       setPendingDelete(null);
@@ -76,21 +69,21 @@ export function AdminShifts() {
 
   return (
     <>
-      <h1 className="page-title">Turnos (global)</h1>
-      <p className="page-sub">Todos los turnos del sistema, con opción de eliminar.</p>
+      <h1 className="page-title">{t.adminShifts.title}</h1>
+      <p className="page-sub">{t.adminShifts.subtitle}</p>
       <ErrorBanner messages={errors} />
 
       <div className="toolbar">
         <div className="tabs" style={{ border: 'none', margin: 0 }}>
-          {TABS.map((t) => (
-            <button key={t.key} className={tab === t.key ? 'active' : ''} onClick={() => setTab(t.key)}>
-              {t.label}
+          {TAB_KEYS.map((key) => (
+            <button key={key} className={tab === key ? 'active' : ''} onClick={() => setTab(key)}>
+              {t.adminShifts.tabs[key]}
             </button>
           ))}
         </div>
         <input
           className="search"
-          placeholder="Buscar por mascota o veterinario…"
+          placeholder={t.adminShifts.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -108,15 +101,15 @@ export function AdminShifts() {
                 value=""
                 onChange={(e) => e.target.value && changeStatus(shift.id, e.target.value)}
               >
-                <option value="">Cambiar estado…</option>
+                <option value="">{t.adminShifts.changeStatus}</option>
                 {STATUS_OPTIONS.map((option) => (
                   <option key={option} value={option}>
-                    {STATUS_OPTION_LABELS[option]}
+                    {option === 'Served' ? t.shifts.markServed : t.shifts.cancelShift}
                   </option>
                 ))}
               </select>
               <button className="btn-text danger" onClick={() => setPendingDelete(shift)}>
-                Eliminar
+                {t.common.delete}
               </button>
             </div>
           )
@@ -125,8 +118,8 @@ export function AdminShifts() {
 
       {pendingDelete && (
         <ConfirmDeleteOverlay
-          title="Eliminar turno"
-          description="Esta acción elimina el turno del sistema. No se puede deshacer."
+          title={t.adminShifts.deleteTitle}
+          description={t.adminShifts.deleteDescription}
           onCancel={() => setPendingDelete(null)}
           onConfirm={confirmDelete}
         />

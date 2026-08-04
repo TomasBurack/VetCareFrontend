@@ -1,8 +1,12 @@
-export const SPECIALITIES = [
-  { value: 'Clinical', label: 'Clínica general' },
-  { value: 'Guard', label: 'Guardia' },
-  { value: 'Surgery', label: 'Cirugía' },
-  { value: 'Dermatology', label: 'Dermatología' },
-  { value: 'Cardiology', label: 'Cardiología' },
-  { value: 'Traumatology', label: 'Traumatología' },
+// Los labels visibles se resuelven desde el diccionario de idioma
+// (t.specialities[value]); acá solo viven los valores del backend.
+export const SPECIALITY_VALUES = [
+  'Clinical',
+  'Guard',
+  'Surgery',
+  'Dermatology',
+  'Cardiology',
+  'Traumatology',
 ];
+
+export const SPECIALITIES = SPECIALITY_VALUES.map((value) => ({ value }));

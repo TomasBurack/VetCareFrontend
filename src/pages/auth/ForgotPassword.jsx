@@ -7,10 +7,12 @@ import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
 import { ApiError } from '../../api/client';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 export function ForgotPassword() {
   const { requestPasswordReset } = useAuth();
   const toast = useToast();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -23,9 +25,9 @@ export function ForgotPassword() {
     try {
       await requestPasswordReset(email);
       setSent(true);
-      toast.success('Te enviamos un email con instrucciones.');
+      toast.success(t.auth.forgotSentToast);
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo procesar la solicitud.'];
+      const messages = err instanceof ApiError ? err.messages : [t.auth.forgotRequestError];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -34,22 +36,19 @@ export function ForgotPassword() {
   }
 
   return (
-    <AuthCard
-      title="Olvidé mi contraseña"
-      subtitle="Ingresá tu email. Si existe una cuenta asociada, vas a recibir instrucciones para restablecer tu contraseña."
-    >
+    <AuthCard title={t.auth.forgotTitleLong} subtitle={t.auth.forgotSubtitleLong}>
       <ErrorBanner messages={errors} />
       <form onSubmit={handleSubmit}>
         <Field
-          label="Email"
+          label={t.common.email}
           type="email"
           required
-          placeholder="nombre@correo.com"
+          placeholder={t.common.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <Button type="submit" disabled={submitting} style={{ width: '100%', justifyContent: 'center' }}>
-          {submitting ? 'Enviando…' : 'Enviar instrucciones'}
+          {submitting ? t.auth.forgotSending : t.auth.forgotSubmitLong}
         </Button>
       </form>
       {sent && (
@@ -63,11 +62,11 @@ export function ForgotPassword() {
             color: 'var(--sage-muted)',
           }}
         >
-          Por seguridad, siempre mostramos este mismo mensaje exista o no la cuenta.
+          {t.auth.forgotSecurityNote}
         </div>
       )}
       <div className="auth-footer">
-        <Link to="/login">Volver a iniciar sesión</Link>
+        <Link to="/login">{t.auth.backToLogin}</Link>
       </div>
     </AuthCard>
   );

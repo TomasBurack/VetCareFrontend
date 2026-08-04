@@ -5,6 +5,7 @@ import { ApiError } from '../api/client';
 import { ErrorBanner } from './ErrorBanner';
 import { Field } from './Field';
 import { Button } from './Button';
+import { useLanguage } from '../i18n/useLanguage';
 
 const STEP = {
   IDLE: 'idle',
@@ -13,6 +14,7 @@ const STEP = {
 };
 
 export function TwoFactorSettings() {
+  const { t } = useLanguage();
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(null);
   const [step, setStep] = useState(STEP.IDLE);
   const [qrDataUrl, setQrDataUrl] = useState(null);
@@ -38,7 +40,7 @@ export function TwoFactorSettings() {
       setQrDataUrl(dataUrl);
       setStep(STEP.ENROLLING);
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo iniciar la activación.']);
+      setErrors(err instanceof ApiError ? err.messages : [t.twoFactor.enableError]);
     } finally {
       setSubmitting(false);
     }
@@ -55,7 +57,7 @@ export function TwoFactorSettings() {
       setQrDataUrl(null);
       refreshStatus();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['Código inválido. Intentá de nuevo.']);
+      setErrors(err instanceof ApiError ? err.messages : [t.twoFactor.invalidCode]);
     } finally {
       setSubmitting(false);
     }
@@ -71,7 +73,7 @@ export function TwoFactorSettings() {
       setStep(STEP.IDLE);
       refreshStatus();
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudo desactivar. Verificá tu contraseña.']);
+      setErrors(err instanceof ApiError ? err.messages : [t.twoFactor.disableError]);
     } finally {
       setSubmitting(false);
     }
@@ -84,25 +86,22 @@ export function TwoFactorSettings() {
   if (step === STEP.ENROLLING) {
     return (
       <div className="danger-zone">
-        <div className="t">Escaneá el código QR</div>
-        <div className="sub">
-          Usá Google Authenticator, Authy u otra app compatible con TOTP. Después ingresá el código de 6 dígitos para
-          confirmar.
-        </div>
+        <div className="t">{t.twoFactor.scanTitle}</div>
+        <div className="sub">{t.twoFactor.scanSub}</div>
         <ErrorBanner messages={errors} />
-        {qrDataUrl && <img src={qrDataUrl} alt="Código QR para 2FA" style={{ margin: '0.75rem 0' }} />}
+        {qrDataUrl && <img src={qrDataUrl} alt={t.twoFactor.qrAlt} style={{ margin: '0.75rem 0' }} />}
         <form onSubmit={handleConfirmEnrollment}>
           <Field
-            label="Código de verificación"
+            label={t.twoFactor.codeLabel}
             required
             autoFocus
-            placeholder="123456"
+            placeholder={t.twoFactor.codeInputPlaceholder}
             value={code}
             onChange={(e) => setCode(e.target.value)}
           />
           <div style={{ display: 'flex', gap: '.6rem' }}>
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'Confirmando…' : 'Confirmar'}
+              {submitting ? t.twoFactor.confirming : t.twoFactor.confirm}
             </Button>
             <Button
               type="button"
@@ -113,7 +112,7 @@ export function TwoFactorSettings() {
                 setErrors([]);
               }}
             >
-              Cancelar
+              {t.common.cancel}
             </Button>
           </div>
         </form>
@@ -124,22 +123,22 @@ export function TwoFactorSettings() {
   if (step === STEP.DISABLING) {
     return (
       <div className="danger-zone">
-        <div className="t">Desactivar verificación en dos pasos</div>
-        <div className="sub">Ingresá tu contraseña para confirmar.</div>
+        <div className="t">{t.twoFactor.disableTitle}</div>
+        <div className="sub">{t.twoFactor.disableSub}</div>
         <ErrorBanner messages={errors} />
         <form onSubmit={handleDisable}>
           <Field
-            label="Contraseña"
+            label={t.common.password}
             type="password"
             required
             autoFocus
-            placeholder="••••••••"
+            placeholder={t.common.passwordPlaceholder}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
           <div style={{ display: 'flex', gap: '.6rem' }}>
             <Button type="submit" variant="danger" disabled={submitting}>
-              {submitting ? 'Desactivando…' : 'Desactivar'}
+              {submitting ? t.twoFactor.disabling : t.twoFactor.disable}
             </Button>
             <Button
               type="button"
@@ -150,7 +149,7 @@ export function TwoFactorSettings() {
                 setErrors([]);
               }}
             >
-              Cancelar
+              {t.common.cancel}
             </Button>
           </div>
         </form>
@@ -160,21 +159,19 @@ export function TwoFactorSettings() {
 
   return (
     <div className="danger-zone">
-      <div className="t">Verificación en dos pasos</div>
+      <div className="t">{t.twoFactor.settingsTitle}</div>
       <div className="sub">
-        {twoFactorEnabled
-          ? 'Está activada. Se te va a pedir un código además de tu contraseña al iniciar sesión.'
-          : 'Agregá una capa extra de seguridad pidiendo un código de tu app de autenticación al iniciar sesión.'}
+        {twoFactorEnabled ? t.twoFactor.statusOn : t.twoFactor.statusOff}
       </div>
       <ErrorBanner messages={errors} />
       <div style={{ display: 'flex', gap: '.6rem' }}>
         {twoFactorEnabled ? (
           <Button variant="danger" onClick={() => setStep(STEP.DISABLING)}>
-            Desactivar
+            {t.twoFactor.disable}
           </Button>
         ) : (
           <Button onClick={handleStartEnrollment} disabled={submitting}>
-            {submitting ? 'Generando…' : 'Activar'}
+            {submitting ? t.twoFactor.generating : t.twoFactor.enable}
           </Button>
         )}
       </div>

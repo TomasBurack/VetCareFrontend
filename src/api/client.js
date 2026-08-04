@@ -15,6 +15,29 @@ export function setUnauthorizedHandler(handler) {
   onUnauthorized = handler;
 }
 
+// Los mensajes genéricos se arman acá (fuera de React), así que leemos el
+// idioma activo directamente del storage que mantiene el LanguageProvider.
+function getGenericMessages() {
+  const language = localStorage.getItem("vetcare-language") === "en" ? "en" : "es";
+  return language === "en"
+    ? {
+        401: "Unauthorized. Please sign in again.",
+        403: "You don't have permission to perform this action.",
+        404: "The requested resource was not found.",
+        409: "Conflict: the resource already exists or is in use.",
+        500: "A server error occurred. Please try again later.",
+        unexpected: "An unexpected error occurred.",
+      }
+    : {
+        401: "No autorizado. Iniciá sesión nuevamente.",
+        403: "No tenés permisos para realizar esta acción.",
+        404: "No se encontró el recurso solicitado.",
+        409: "Conflicto: el recurso ya existe o está en uso.",
+        500: "Ocurrió un error en el servidor. Intentá de nuevo más tarde.",
+        unexpected: "Ocurrió un error inesperado.",
+      };
+}
+
 async function request(method, path, { body } = {}) {
   const headers = { "Content-Type": "application/json" };
 
@@ -35,17 +58,9 @@ async function request(method, path, { body } = {}) {
     if (response.status === 400 && data?.error) {
       throw new ApiError(400, data.error.split("~").filter(Boolean));
     }
-    const genericMessages = {
-      401: "No autorizado. Iniciá sesión nuevamente.",
-      403: "No tenés permisos para realizar esta acción.",
-      404: "No se encontró el recurso solicitado.",
-      409: "Conflicto: el recurso ya existe o está en uso.",
-      500: "Ocurrió un error en el servidor. Intentá de nuevo más tarde.",
-    };
+    const generic = getGenericMessages();
     throw new ApiError(response.status, [
-      data?.error ||
-        genericMessages[response.status] ||
-        "Ocurrió un error inesperado.",
+      data?.error || generic[response.status] || generic.unexpected,
     ]);
   }
 

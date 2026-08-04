@@ -8,11 +8,13 @@ import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { Field } from '../../components/Field';
 import { FormCard } from '../../components/FormCard';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 const EMPTY_FORM = { firstName: '', lastName: '', dni: '', phoneNumber: '', email: '', password: '' };
 
 export function SysadminAdmins() {
   const toast = useToast();
+  const { t } = useLanguage();
   const [admins, setAdmins] = useState([]);
   const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
@@ -28,12 +30,13 @@ export function SysadminAdmins() {
       const data = await sysadminApi.allAdmins();
       setAdmins(data ?? []);
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudieron cargar los administradores.']);
+      setErrors(err instanceof ApiError ? err.messages : [t.sysadminAdmins.loadError]);
     }
   }
 
   useEffect(() => {
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch on mount only; `load` closes over `t` but must not re-run on language change
   }, []);
 
   function update(field) {
@@ -49,17 +52,17 @@ export function SysadminAdmins() {
         const payload = { ...form };
         if (!payload.password) delete payload.password;
         await sysadminApi.update(editingId, payload);
-        toast.success('Administrador actualizado correctamente.');
+        toast.success(t.sysadminAdmins.updated);
       } else {
         await sysadminApi.create(form);
-        toast.success('Administrador creado correctamente.');
+        toast.success(t.sysadminAdmins.created);
       }
       setForm(EMPTY_FORM);
       setCreating(false);
       setEditingId(null);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo guardar el administrador.'];
+      const messages = err instanceof ApiError ? err.messages : [t.sysadminAdmins.saveError];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -83,10 +86,10 @@ export function SysadminAdmins() {
     try {
       await sysadminApi.remove(pendingDelete.id);
       setPendingDelete(null);
-      toast.success('Administrador eliminado correctamente.');
+      toast.success(t.sysadminAdmins.deleted);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar el administrador.'];
+      const messages = err instanceof ApiError ? err.messages : [t.sysadminAdmins.deleteError];
       setErrors(messages);
       toast.error(messages[0]);
       setPendingDelete(null);
@@ -100,30 +103,36 @@ export function SysadminAdmins() {
 
   return (
     <>
-      <h1 className="page-title">{editingId !== null ? 'Editar administrador' : creating ? 'Nuevo administrador' : 'Administradores'}</h1>
+      <h1 className="page-title">
+        {editingId !== null
+          ? t.sysadminAdmins.titleEdit
+          : creating
+            ? t.sysadminAdmins.titleNew
+            : t.sysadminAdmins.title}
+      </h1>
       <p className="page-sub">
         {editingId !== null
-          ? 'Modifica los datos de la cuenta del administrador.'
+          ? t.sysadminAdmins.subtitleEdit
           : creating
-            ? 'Crea una cuenta de administrador con acceso al panel.'
-            : 'Alta, edición y baja de cuentas de administrador.'}
+            ? t.sysadminAdmins.subtitleNew
+            : t.sysadminAdmins.subtitle}
       </p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
         {!isFormOpen && (
           <input
             className="search"
-            placeholder="Buscar por nombre o email…"
+            placeholder={t.sysadminAdmins.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         )}
         {isFormOpen ? (
           <Button variant="outline" onClick={closeForm}>
-            Cancelar
+            {t.common.cancel}
           </Button>
         ) : (
-          <Button onClick={() => setCreating(true)}>+ Nuevo administrador</Button>
+          <Button onClick={() => setCreating(true)}>{t.sysadminAdmins.new}</Button>
         )}
       </div>
 
@@ -131,30 +140,59 @@ export function SysadminAdmins() {
         <FormCard maxWidth={520}>
           <form onSubmit={handleCreate}>
             <div className="grid cols-2">
-              <Field label="Nombre" required placeholder="Tomás" value={form.firstName} onChange={update('firstName')} />
-              <Field label="Apellido" required placeholder="Burack" value={form.lastName} onChange={update('lastName')} />
+              <Field
+                label={t.common.firstName}
+                required
+                placeholder={t.sysadminAdmins.placeholders.firstName}
+                value={form.firstName}
+                onChange={update('firstName')}
+              />
+              <Field
+                label={t.common.lastName}
+                required
+                placeholder={t.sysadminAdmins.placeholders.lastName}
+                value={form.lastName}
+                onChange={update('lastName')}
+              />
             </div>
             <div className="grid cols-2">
-              <Field label="DNI" required placeholder="46760480" value={form.dni} onChange={update('dni')} />
               <Field
-                label="Teléfono"
+                label={t.common.dni}
                 required
-                placeholder="+54 9 11 2200-1147"
+                placeholder={t.sysadminAdmins.placeholders.dni}
+                value={form.dni}
+                onChange={update('dni')}
+              />
+              <Field
+                label={t.common.phone}
+                required
+                placeholder={t.sysadminAdmins.placeholders.phone}
                 value={form.phoneNumber}
                 onChange={update('phoneNumber')}
               />
             </div>
-            <Field label="Email" type="email" required placeholder="tomas.burack@vetcare.com" value={form.email} onChange={update('email')} />
             <Field
-              label="Contraseña temporal"
+              label={t.common.email}
+              type="email"
+              required
+              placeholder={t.sysadminAdmins.placeholders.email}
+              value={form.email}
+              onChange={update('email')}
+            />
+            <Field
+              label={t.common.tempPassword}
               type="password"
               required={editingId === null}
-              placeholder={editingId !== null ? 'Dejar en blanco para no cambiarla' : 'Se le pedirá cambiarla en el primer ingreso'}
+              placeholder={editingId !== null ? t.common.passwordHintKeep : t.common.passwordHintNew}
               value={form.password}
               onChange={update('password')}
             />
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'Guardando…' : editingId !== null ? 'Guardar cambios' : 'Crear administrador'}
+              {submitting
+                ? t.common.saving
+                : editingId !== null
+                  ? t.common.saveChanges
+                  : t.sysadminAdmins.submit}
             </Button>
           </form>
         </FormCard>
@@ -162,17 +200,17 @@ export function SysadminAdmins() {
         <EntityTable
           rows={filtered}
           columns={[
-            { label: 'Nombre', render: (a) => `${a.firstName} ${a.lastName}` },
-            { label: 'DNI', render: (a) => a.dni },
-            { label: 'Email', render: (a) => a.email },
+            { label: t.common.name, render: (a) => `${a.firstName} ${a.lastName}` },
+            { label: t.common.dni, render: (a) => a.dni },
+            { label: t.common.email, render: (a) => a.email },
           ]}
           renderActions={(admin) => (
             <div className="actions">
               <button className="btn-text" onClick={() => startEdit(admin)}>
-                Modificar
+                {t.common.edit}
               </button>
               <button className="btn-text danger" onClick={() => setPendingDelete(admin)}>
-                Eliminar
+                {t.common.delete}
               </button>
             </div>
           )}
@@ -181,8 +219,10 @@ export function SysadminAdmins() {
 
       {pendingDelete && (
         <ConfirmDeleteOverlay
-          title={`Eliminar a ${pendingDelete.firstName} ${pendingDelete.lastName}`}
-          description="Esta acción elimina la cuenta del administrador. No se puede deshacer."
+          title={t.sysadminAdmins.deleteTitle(
+            `${pendingDelete.firstName} ${pendingDelete.lastName}`,
+          )}
+          description={t.sysadminAdmins.deleteDescription}
           onCancel={() => setPendingDelete(null)}
           onConfirm={confirmDelete}
         />

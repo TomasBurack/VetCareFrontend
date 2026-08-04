@@ -1,10 +1,7 @@
-const LABELS = {
-  pendant: 'Pendiente',
-  served: 'Atendido',
-  canceled: 'Cancelado',
-};
+import { useLanguage } from '../i18n/useLanguage';
 
 export function Badge({ status }) {
+  const { t } = useLanguage();
   const key = status?.toLowerCase();
-  return <span className={`badge ${key}`}>{LABELS[key] ?? status}</span>;
+  return <span className={`badge ${key}`}>{t.shifts.statuses[key] ?? status}</span>;
 }

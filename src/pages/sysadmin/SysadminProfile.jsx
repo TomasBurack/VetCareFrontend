@@ -7,9 +7,11 @@ import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { TwoFactorSettings } from '../../components/TwoFactorSettings';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 export function SysadminProfile() {
   const toast = useToast();
+  const { t } = useLanguage();
   const [form, setForm] = useState(null);
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -36,9 +38,9 @@ export function SysadminProfile() {
     setSaving(true);
     try {
       await sysadminApi.updateMyUser(form);
-      toast.success('Cambios guardados correctamente.');
+      toast.success(t.profile.saved);
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.'];
+      const messages = err instanceof ApiError ? err.messages : [t.profile.saveError];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -50,23 +52,23 @@ export function SysadminProfile() {
 
   return (
     <>
-      <h1 className="page-title">Mi perfil</h1>
-      <p className="page-sub">Tus datos de superusuario del sistema.</p>
+      <h1 className="page-title">{t.profile.title}</h1>
+      <p className="page-sub">{t.profile.subtitleSysadmin}</p>
       <FormCard maxWidth={520}>
         <ErrorBanner messages={errors} />
         <form onSubmit={handleSubmit}>
           <div className="grid cols-2">
-            <Field label="Nombre" value={form.firstName} onChange={update('firstName')} />
-            <Field label="Apellido" value={form.lastName} onChange={update('lastName')} />
+            <Field label={t.common.firstName} value={form.firstName} onChange={update('firstName')} />
+            <Field label={t.common.lastName} value={form.lastName} onChange={update('lastName')} />
           </div>
           <div className="grid cols-2">
-            <Field label="DNI" style={{ fontFamily: 'var(--font-mono)' }} value={form.dni} onChange={update('dni')} />
-            <Field label="Teléfono" value={form.phoneNumber} onChange={update('phoneNumber')} />
+            <Field label={t.common.dni} style={{ fontFamily: 'var(--font-mono)' }} value={form.dni} onChange={update('dni')} />
+            <Field label={t.common.phone} value={form.phoneNumber} onChange={update('phoneNumber')} />
           </div>
-          <Field label="Email" type="email" value={form.email} onChange={update('email')} />
+          <Field label={t.common.email} type="email" value={form.email} onChange={update('email')} />
           <div style={{ display: 'flex', gap: '.6rem' }}>
             <Button type="submit" disabled={saving}>
-              {saving ? 'Guardando…' : 'Guardar cambios'}
+              {saving ? t.common.saving : t.common.saveChanges}
             </Button>
           </div>
         </form>

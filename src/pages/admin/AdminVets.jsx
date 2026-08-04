@@ -7,9 +7,11 @@ import { EntityTable } from '../../components/EntityTable';
 import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 export function AdminVets() {
   const toast = useToast();
+  const { t } = useLanguage();
   const [vets, setVets] = useState([]);
   const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
@@ -20,23 +22,23 @@ export function AdminVets() {
       const data = await veterinarianApi.all();
       setVets(data ?? []);
     } catch (err) {
-      setErrors(err instanceof ApiError ? err.messages : ['No se pudieron cargar los veterinarios.']);
+      setErrors(err instanceof ApiError ? err.messages : [t.adminVets.loadError]);
     }
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on mount, no client-side data source to derive from
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch on mount only; `load` closes over `t` but must not re-run on language change
   }, []);
 
   async function confirmDelete() {
     try {
       await veterinarianApi.remove(pendingDelete.id);
       setPendingDelete(null);
-      toast.success('Veterinario eliminado correctamente.');
+      toast.success(t.adminVets.deleted);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar el veterinario.'];
+      const messages = err instanceof ApiError ? err.messages : [t.adminVets.deleteError];
       setErrors(messages);
       toast.error(messages[0]);
       setPendingDelete(null);
@@ -50,35 +52,35 @@ export function AdminVets() {
 
   return (
     <>
-      <h1 className="page-title">Veterinarios</h1>
-      <p className="page-sub">Alta, edición y baja del staff veterinario.</p>
+      <h1 className="page-title">{t.adminVets.title}</h1>
+      <p className="page-sub">{t.adminVets.subtitle}</p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
         <input
           className="search"
-          placeholder="Buscar por nombre o matrícula…"
+          placeholder={t.adminVets.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <Link to="/veterinarios/nuevo">
-          <Button>+ Nuevo veterinario</Button>
+          <Button>{t.adminVets.new}</Button>
         </Link>
       </div>
 
       <EntityTable
         rows={filtered}
         columns={[
-          { label: 'Nombre', render: (v) => `${v.firstName} ${v.lastName}` },
-          { label: 'Matrícula', render: (v) => v.enrollment },
-          { label: 'Especialidad', render: (v) => v.speciality },
+          { label: t.common.name, render: (v) => `${v.firstName} ${v.lastName}` },
+          { label: t.adminVets.enrollment, render: (v) => v.enrollment },
+          { label: t.adminVets.speciality, render: (v) => t.specialities[v.speciality] ?? v.speciality },
         ]}
         renderActions={(vet) => (
           <div className="actions">
             <Link className="btn-text" to={`/veterinarios/editar/${vet.id}`}>
-              Modificar
+              {t.common.edit}
             </Link>
             <button className="btn-text danger" onClick={() => setPendingDelete(vet)}>
-              Eliminar
+              {t.common.delete}
             </button>
           </div>
         )}
@@ -86,8 +88,8 @@ export function AdminVets() {
 
       {pendingDelete && (
         <ConfirmDeleteOverlay
-          title={`Eliminar a ${pendingDelete.firstName} ${pendingDelete.lastName}`}
-          description="Esta acción elimina la cuenta del veterinario. No se puede deshacer."
+          title={t.adminVets.deleteTitle(`${pendingDelete.firstName} ${pendingDelete.lastName}`)}
+          description={t.adminVets.deleteDescription}
           onCancel={() => setPendingDelete(null)}
           onConfirm={confirmDelete}
         />

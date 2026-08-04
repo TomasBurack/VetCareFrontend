@@ -6,22 +6,14 @@ import { ShiftsTable } from '../../components/ShiftsTable';
 import { EmptyState } from '../../components/EmptyState';
 import { CalendarDays } from 'lucide-react';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 const STATUS_OPTIONS = ['Served', 'Canceled'];
-const STATUS_OPTION_LABELS = {
-  Served: 'Marcar como atendido',
-  Canceled: 'Cancelar turno',
-};
-
-const TABS = [
-  { key: 'all', label: 'Todos' },
-  { key: 'pendant', label: 'Pendientes' },
-  { key: 'served', label: 'Atendidos' },
-  { key: 'canceled', label: 'Cancelados' },
-];
+const TAB_KEYS = ['all', 'pendant', 'served', 'canceled'];
 
 export function VetShifts() {
   const toast = useToast();
+  const { t } = useLanguage();
   const [shifts, setShifts] = useState([]);
   const [tab, setTab] = useState('all');
   const [errors, setErrors] = useState([]);
@@ -32,24 +24,24 @@ export function VetShifts() {
       setShifts(data ?? []);
     } catch (err) {
       if (!(err instanceof ApiError && err.status === 404)) {
-        setErrors(err instanceof ApiError ? err.messages : ['No se pudieron cargar los turnos.']);
+        setErrors(err instanceof ApiError ? err.messages : [t.vetShifts.loadError]);
       }
       setShifts([]);
     }
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on mount, no client-side data source to derive from
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch on mount only; `load` closes over `t` but must not re-run on language change
   }, []);
 
   async function changeStatus(id, status) {
     try {
       await shiftApi.updateStatusAsVeterinarian(id, status);
-      toast.success(status === 'Served' ? 'Turno marcado como atendido.' : 'Turno cancelado correctamente.');
+      toast.success(status === 'Served' ? t.vetShifts.markedServed : t.vetShifts.canceled);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo actualizar el turno.'];
+      const messages = err instanceof ApiError ? err.messages : [t.vetShifts.updateError];
       setErrors(messages);
       toast.error(messages[0]);
     }
@@ -62,30 +54,32 @@ export function VetShifts() {
 
   return (
     <>
-      <h1 className="page-title">Turnos asignados</h1>
-      <p className="page-sub">Consultas agendadas bajo tu matrícula.</p>
+      <h1 className="page-title">{t.vetShifts.title}</h1>
+      <p className="page-sub">{t.vetShifts.subtitle}</p>
       <ErrorBanner messages={errors} />
 
       <div className="stat-row">
         <div className="stat">
           <div className="n">{today}</div>
-          <div className="l">Hoy</div>
+          <div className="l">{t.vetShifts.statToday}</div>
         </div>
         <div className="stat">
           <div className="n">{pending}</div>
-          <div className="l">Pendientes de confirmar</div>
+          <div className="l">{t.vetShifts.statPending}</div>
         </div>
       </div>
 
       <div className="tabs">
-        {TABS.map((t) => (
-          <button key={t.key} className={tab === t.key ? 'active' : ''} onClick={() => setTab(t.key)}>
-            {t.label}
+        {TAB_KEYS.map((key) => (
+          <button key={key} className={tab === key ? 'active' : ''} onClick={() => setTab(key)}>
+            {t.vetShifts.tabs[key]}
           </button>
         ))}
       </div>
 
-      {shifts.length === 0 && <EmptyState icon={<CalendarDays size={28} />} message="No tenés turnos asignados" />}
+      {shifts.length === 0 && (
+        <EmptyState icon={<CalendarDays size={28} />} message={t.vetShifts.emptyTitle} />
+      )}
 
       {shifts.length > 0 && (
         <ShiftsTable
@@ -98,10 +92,10 @@ export function VetShifts() {
                 value=""
                 onChange={(e) => e.target.value && changeStatus(shift.id, e.target.value)}
               >
-                <option value="">Cambiar estado…</option>
+                <option value="">{t.vetShifts.changeStatus}</option>
                 {STATUS_OPTIONS.map((option) => (
                   <option key={option} value={option}>
-                    {STATUS_OPTION_LABELS[option]}
+                    {option === 'Served' ? t.shifts.markServed : t.shifts.cancelShift}
                   </option>
                 ))}
               </select>

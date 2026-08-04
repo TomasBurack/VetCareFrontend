@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLanguage } from '../i18n/useLanguage';
 
 function EyeIcon({ open }) {
   return open ? (
@@ -16,6 +17,7 @@ function EyeIcon({ open }) {
 
 export function Field({ label, required, hint, type, children, ...props }) {
   const [visible, setVisible] = useState(false);
+  const { t } = useLanguage();
   const isPassword = type === 'password';
 
   return (
@@ -32,7 +34,7 @@ export function Field({ label, required, hint, type, children, ...props }) {
               type="button"
               className="field-password-toggle"
               onClick={() => setVisible((v) => !v)}
-              aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              aria-label={visible ? t.common.hidePassword : t.common.showPassword}
               tabIndex={-1}
             >
               <EyeIcon open={visible} />

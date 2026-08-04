@@ -10,6 +10,7 @@ import { EmptyState } from '../../components/EmptyState';
 import { TruncatedText } from '../../components/TruncatedText';
 import { formatShiftDate } from '../../utils/date';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 const STATUS_STRIPE = {
   pendant: 'var(--amber)',
@@ -19,6 +20,7 @@ const STATUS_STRIPE = {
 
 export function ClientShifts() {
   const toast = useToast();
+  const { t } = useLanguage();
   const [shifts, setShifts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
@@ -30,7 +32,7 @@ export function ClientShifts() {
       setShifts(data ?? []);
     } catch (err) {
       if (!(err instanceof ApiError && err.status === 404)) {
-        setErrors(err instanceof ApiError ? err.messages : ['No se pudieron cargar los turnos.']);
+        setErrors(err instanceof ApiError ? err.messages : [t.clientShifts.loadError]);
       }
       setShifts([]);
     } finally {
@@ -40,15 +42,16 @@ export function ClientShifts() {
 
   useEffect(() => {
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch on mount only; `load` closes over `t` but must not re-run on language change
   }, []);
 
   async function cancelShift(id) {
     try {
       await shiftApi.cancelAsClient(id);
-      toast.success('Turno cancelado correctamente.');
+      toast.success(t.clientShifts.canceled);
       load();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo cancelar el turno.'];
+      const messages = err instanceof ApiError ? err.messages : [t.clientShifts.cancelError];
       setErrors(messages);
       toast.error(messages[0]);
     }
@@ -56,18 +59,18 @@ export function ClientShifts() {
 
   return (
     <>
-      <h1 className="page-title">Mis turnos</h1>
-      <p className="page-sub">Turnos solicitados para tus mascotas.</p>
+      <h1 className="page-title">{t.clientShifts.title}</h1>
+      <p className="page-sub">{t.clientShifts.subtitle}</p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
         <div />
         <Link to="/mis-turnos/nuevo">
-          <Button>+ Solicitar turno</Button>
+          <Button>{t.clientShifts.new}</Button>
         </Link>
       </div>
 
       {!loading && shifts.length === 0 && (
-        <EmptyState icon={<CalendarDays size={28} />} message="No tenés turnos solicitados" />
+        <EmptyState icon={<CalendarDays size={28} />} message={t.clientShifts.emptyTitle} />
       )}
 
       {shifts.map((shift) => {
@@ -78,7 +81,7 @@ export function ClientShifts() {
               <div>
                 <div style={{ fontWeight: 600, fontSize: '.95rem' }}>{shift.petName}</div>
                 <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)', marginTop: '.2rem' }}>
-                  <TruncatedText text={shift.description} title="Motivo de la consulta" limit={30} /> ·{' '}
+                  <TruncatedText text={shift.description} title={t.shifts.reason} limit={30} /> ·{' '}
                   {formatShiftDate(shift.dateShift)} · {shift.veterinarianName}
                 </div>
               </div>
@@ -86,7 +89,7 @@ export function ClientShifts() {
                 <Badge status={status} />
                 {status === 'pendant' && (
                   <Button variant="outline" style={{ padding: '.4rem .8rem', fontSize: '.78rem' }} onClick={() => cancelShift(shift.id)}>
-                    Cancelar turno
+                    {t.shifts.cancelShift}
                   </Button>
                 )}
               </div>

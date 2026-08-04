@@ -8,13 +8,9 @@ import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { Combobox } from '../../components/Combobox';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
-const PET_TYPES = [
-  { value: 'Canine', label: 'Perro' },
-  { value: 'Feline', label: 'Gato' },
-  { value: 'Avian', label: 'Ave' },
-  { value: 'Reptile', label: 'Reptil' },
-];
+const PET_TYPE_VALUES = ['Canine', 'Feline', 'Avian', 'Reptile'];
 
 const EMPTY_FORM = { name: '', typePet: 'Canine', age: '', breed: '' };
 
@@ -23,6 +19,7 @@ export function ClientPetForm() {
   const isEditing = !!id;
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useLanguage();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [breeds, setBreeds] = useState([]);
@@ -78,7 +75,7 @@ export function ClientPetForm() {
 
     const age = Number(form.age);
     if (!Number.isInteger(age) || age < 0 || age > 100) {
-      setErrors(['La edad debe ser un número entero entre 0 y 100.']);
+      setErrors([t.pets.ageInvalid]);
       return;
     }
 
@@ -90,10 +87,10 @@ export function ClientPetForm() {
       } else {
         await petApi.create(payload);
       }
-      toast.success(isEditing ? 'Mascota actualizada correctamente.' : 'Mascota creada correctamente.');
+      toast.success(isEditing ? t.clientPetForm.updated : t.clientPetForm.created);
       navigate('/mis-mascotas');
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo guardar la mascota.'];
+      const messages = err instanceof ApiError ? err.messages : [t.clientPetForm.error];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -103,53 +100,65 @@ export function ClientPetForm() {
 
   return (
     <>
-      <h1 className="page-title">{isEditing ? 'Editar mascota' : 'Agregar mascota'}</h1>
-      <p className="page-sub">Completá los datos de tu mascota.</p>
+      <h1 className="page-title">{isEditing ? t.clientPetForm.titleEdit : t.clientPetForm.titleNew}</h1>
+      <p className="page-sub">{t.clientPetForm.subtitle}</p>
       <FormCard>
         <ErrorBanner messages={errors} />
         <form onSubmit={handleSubmit}>
-          <Field label="Nombre" required placeholder="Ej: Simón" value={form.name} onChange={update('name')} />
+          <Field
+            label={t.common.name}
+            required
+            placeholder={t.pets.namePlaceholder}
+            value={form.name}
+            onChange={update('name')}
+          />
           <div className="grid cols-2">
-            <Field label="Tipo" required>
+            <Field label={t.pets.type} required>
               <select className="f" value={form.typePet} onChange={handleTypeChange}>
-                {PET_TYPES.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
+                {PET_TYPE_VALUES.map((value) => (
+                  <option key={value} value={value}>
+                    {t.pets.types[value]}
                   </option>
                 ))}
               </select>
             </Field>
             <Field
-              label="Edad (años)"
+              label={t.pets.age}
               type="number"
               required
               min="0"
               max="100"
-              placeholder="3"
+              placeholder={t.pets.agePlaceholder}
               value={form.age}
               onChange={update('age')}
             />
           </div>
 
           {breedsAvailable ? (
-            <Field label="Raza" required hint="Las razas se cargan desde el catálogo externo según el tipo de mascota elegido.">
+            <Field label={t.pets.breed} required hint={t.pets.breedHint}>
               <Combobox
                 options={breeds}
                 value={form.breed}
                 onChange={(breed) => setForm((prev) => ({ ...prev, breed }))}
-                placeholder="Buscá una raza…"
+                placeholder={t.pets.breedSearch}
               />
             </Field>
           ) : (
-            <Field label="Raza" required placeholder="Ej: Mestizo" value={form.breed} onChange={update('breed')} />
+            <Field
+              label={t.pets.breed}
+              required
+              placeholder={t.pets.breedPlaceholder}
+              value={form.breed}
+              onChange={update('breed')}
+            />
           )}
 
           <div style={{ display: 'flex', gap: '.6rem' }}>
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'Guardando…' : 'Guardar mascota'}
+              {submitting ? t.common.saving : t.clientPetForm.submit}
             </Button>
             <Button type="button" variant="outline" onClick={() => navigate('/mis-mascotas')}>
-              Cancelar
+              {t.common.cancel}
             </Button>
           </div>
         </form>

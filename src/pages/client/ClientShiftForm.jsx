@@ -9,6 +9,7 @@ import { Button } from '../../components/Button';
 import { Combobox } from '../../components/Combobox';
 import { DatePicker } from '../../components/DatePicker';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 function vetOptionLabel(vet) {
   return `${vet.firstName} ${vet.lastName} - ${vet.speciality}`;
@@ -33,6 +34,7 @@ const TIME_OPTIONS = Array.from({ length: (SHIFT_END_HOUR - SHIFT_START_HOUR) * 
 export function ClientShiftForm() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useLanguage();
   const today = todayLocalDate();
   const [pets, setPets] = useState([]);
   const [petId, setPetId] = useState('');
@@ -94,16 +96,16 @@ export function ClientShiftForm() {
     setErrors([]);
     const dateShift = date && time ? `${date}T${time}:00-03:00` : null;
     if (dateShift && new Date(dateShift) < new Date()) {
-      setErrors(['No se puede solicitar un turno en una fecha u hora pasada.']);
+      setErrors([t.clientShiftForm.pastDate]);
       return;
     }
     setSubmitting(true);
     try {
       await shiftApi.create({ petId, dateShift, description, enrollment });
-      toast.success('Turno solicitado correctamente.');
+      toast.success(t.clientShiftForm.created);
       navigate('/mis-turnos');
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo solicitar el turno.'];
+      const messages = err instanceof ApiError ? err.messages : [t.clientShiftForm.error];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -113,14 +115,14 @@ export function ClientShiftForm() {
 
   return (
     <>
-      <h1 className="page-title">Solicitar turno</h1>
-      <p className="page-sub">Elegí la mascota y describí el motivo de la consulta.</p>
+      <h1 className="page-title">{t.clientShiftForm.title}</h1>
+      <p className="page-sub">{t.clientShiftForm.subtitle}</p>
       <FormCard>
         <ErrorBanner messages={errors} />
         <form onSubmit={handleSubmit}>
-          <Field label="Mascota" required>
+          <Field label={t.shifts.pet} required>
             <select className="f" value={petId} onChange={(e) => setPetId(e.target.value)} required>
-              {pets.length === 0 && <option value="">No tenés mascotas registradas</option>}
+              {pets.length === 0 && <option value="">{t.clientShiftForm.noPets}</option>}
               {pets.map((pet) => (
                 <option key={pet.idPet} value={pet.idPet}>
                   {pet.name} — {pet.breed}
@@ -128,45 +130,43 @@ export function ClientShiftForm() {
               ))}
             </select>
           </Field>
-          <Field label="Veterinario" required hint="Buscá al veterinario con el que querés atenderte.">
+          <Field label={t.shifts.veterinarian} required hint={t.clientShiftForm.vetHint}>
             <Combobox
               options={vetOptions}
               value={vetOption}
               onChange={setVetOption}
-              placeholder="Buscá un veterinario…"
+              placeholder={t.clientShiftForm.vetSearch}
             />
           </Field>
           <div className="grid cols-2">
-            <Field label="Fecha" required>
+            <Field label={t.shifts.date} required>
               <DatePicker value={date} onChange={setDate} min={today} />
             </Field>
             <Field
-              label="Hora"
+              label={t.shifts.time}
               required
               hint={
-                enrollment
-                  ? 'Los horarios ocupados de ese veterinario aparecen deshabilitados.'
-                  : 'Elegí primero un veterinario para ver sus horarios disponibles.'
+                enrollment ? t.clientShiftForm.timeHintWithVet : t.clientShiftForm.timeHintNoVet
               }
             >
               <select className="f" value={time} onChange={(e) => setTime(e.target.value)} required>
                 <option value="" disabled>
-                  Seleccioná una hora
+                  {t.clientShiftForm.selectTime}
                 </option>
                 {TIME_OPTIONS.map((option) => (
                   <option key={option} value={option} disabled={busyTimeSet.has(option)}>
                     {option}
-                    {busyTimeSet.has(option) ? ' (ocupado)' : ''}
+                    {busyTimeSet.has(option) ? t.clientShiftForm.timeBusySuffix : ''}
                   </option>
                 ))}
               </select>
             </Field>
           </div>
-          <Field label="Motivo de la consulta" required>
+          <Field label={t.shifts.reason} required>
             <textarea
               className="f"
               rows="3"
-              placeholder="Ej: control anual, vacunación, malestar…"
+              placeholder={t.clientShiftForm.descriptionPlaceholder}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
@@ -174,10 +174,10 @@ export function ClientShiftForm() {
           </Field>
           <div style={{ display: 'flex', gap: '.6rem' }}>
             <Button type="submit" disabled={submitting || pets.length === 0}>
-              {submitting ? 'Enviando…' : 'Confirmar solicitud'}
+              {submitting ? t.clientShiftForm.sending : t.clientShiftForm.submitConfirm}
             </Button>
             <Button type="button" variant="outline" onClick={() => navigate('/mis-turnos')}>
-              Cancelar
+              {t.common.cancel}
             </Button>
           </div>
         </form>

@@ -9,10 +9,12 @@ import { Button } from '../../components/Button';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { TwoFactorSettings } from '../../components/TwoFactorSettings';
 import { useToast } from '../../context/useToast';
+import { useLanguage } from '../../i18n/useLanguage';
 
 export function ClientProfile() {
   const { logout } = useAuth();
   const toast = useToast();
+  const { t } = useLanguage();
   const [form, setForm] = useState(null);
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -40,9 +42,9 @@ export function ClientProfile() {
     setSaving(true);
     try {
       await clientApi.updateMyUser(form);
-      toast.success('Cambios guardados correctamente.');
+      toast.success(t.profile.saved);
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudieron guardar los cambios.'];
+      const messages = err instanceof ApiError ? err.messages : [t.profile.saveError];
       setErrors(messages);
       toast.error(messages[0]);
     } finally {
@@ -53,10 +55,10 @@ export function ClientProfile() {
   async function handleDelete() {
     try {
       await clientApi.deleteMyUser();
-      toast.success('Cuenta eliminada correctamente.');
+      toast.success(t.profile.deleted);
       logout();
     } catch (err) {
-      const messages = err instanceof ApiError ? err.messages : ['No se pudo eliminar la cuenta.'];
+      const messages = err instanceof ApiError ? err.messages : [t.profile.deleteError];
       setErrors(messages);
       toast.error(messages[0]);
       setConfirmingDelete(false);
@@ -67,41 +69,41 @@ export function ClientProfile() {
 
   return (
     <>
-      <h1 className="page-title">Mi perfil</h1>
-      <p className="page-sub">Tus datos personales de contacto.</p>
+      <h1 className="page-title">{t.profile.title}</h1>
+      <p className="page-sub">{t.profile.subtitleClient}</p>
       <FormCard maxWidth={520}>
         <ErrorBanner messages={errors} />
-        <div className="section-title">Datos personales</div>
+        <div className="section-title">{t.profile.personalData}</div>
         <form onSubmit={handleSubmit}>
           <div className="grid cols-2">
-            <Field label="Nombre" value={form.firstName} onChange={update('firstName')} />
-            <Field label="Apellido" value={form.lastName} onChange={update('lastName')} />
+            <Field label={t.common.firstName} value={form.firstName} onChange={update('firstName')} />
+            <Field label={t.common.lastName} value={form.lastName} onChange={update('lastName')} />
           </div>
           <div className="grid cols-2">
-            <Field label="DNI" style={{ fontFamily: 'var(--font-mono)' }} value={form.dni} onChange={update('dni')} />
-            <Field label="Teléfono" value={form.phoneNumber} onChange={update('phoneNumber')} />
+            <Field label={t.common.dni} style={{ fontFamily: 'var(--font-mono)' }} value={form.dni} onChange={update('dni')} />
+            <Field label={t.common.phone} value={form.phoneNumber} onChange={update('phoneNumber')} />
           </div>
-          <Field label="Email" type="email" value={form.email} onChange={update('email')} />
+          <Field label={t.common.email} type="email" value={form.email} onChange={update('email')} />
           <div style={{ display: 'flex', gap: '.6rem', marginTop: '.25rem' }}>
             <Button type="submit" disabled={saving}>
-              {saving ? 'Guardando…' : 'Guardar cambios'}
+              {saving ? t.common.saving : t.common.saveChanges}
             </Button>
           </div>
         </form>
         <TwoFactorSettings />
         <div className="danger-zone">
-          <div className="t">Eliminar cuenta</div>
-          <div className="sub">Se eliminan tus datos, mascotas y turnos asociados. Esta acción no se puede deshacer.</div>
+          <div className="t">{t.profile.deleteAccountHeading}</div>
+          <div className="sub">{t.profile.deleteNoteClient}</div>
           <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
-            Eliminar mi cuenta
+            {t.profile.deleteAccount}
           </Button>
         </div>
       </FormCard>
 
       {confirmingDelete && (
         <ConfirmDeleteOverlay
-          title="Eliminar mi cuenta"
-          description="Esta acción elimina tu cuenta, mascotas y turnos. No se puede deshacer."
+          title={t.profile.deleteAccountTitle}
+          description={t.profile.deleteConfirmClient}
           onCancel={() => setConfirmingDelete(false)}
           onConfirm={handleDelete}
         />

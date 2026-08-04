@@ -1,6 +1,10 @@
 import { Button } from './Button';
+import { useLanguage } from '../i18n/useLanguage';
 
-export function ConfirmDeleteOverlay({ title, description, onCancel, onConfirm, confirmLabel = 'Eliminar' }) {
+export function ConfirmDeleteOverlay({ title, description, onCancel, onConfirm, confirmLabel }) {
+  const { t } = useLanguage();
+  const confirmText = confirmLabel ?? t.common.delete;
+
   return (
     <div className="overlay-backdrop" onClick={onCancel}>
       <div className="modal-mock" onClick={(e) => e.stopPropagation()}>
@@ -10,10 +14,10 @@ export function ConfirmDeleteOverlay({ title, description, onCancel, onConfirm, 
         <div className="modal-body">{description}</div>
         <div className="modal-foot">
           <Button variant="outline" onClick={onCancel}>
-            Cancelar
+            {t.common.cancel}
           </Button>
           <Button variant="danger" onClick={onConfirm}>
-            {confirmLabel}
+            {confirmText}
           </Button>
         </div>
       </div>

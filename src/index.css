@@ -657,6 +657,45 @@ textarea.f:focus {
   transform: translateX(16px);
 }
 
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--sage-muted);
+}
+.sidebar .theme-switch {
+  margin: 0.9rem 0 0.5rem;
+}
+.sidebar-lang {
+  margin-bottom: 1.2rem;
+}
+.lang-switch-icon {
+  flex-shrink: 0;
+  opacity: 0.6;
+  margin-right: 0.1rem;
+}
+.lang-switch button {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.1rem 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  color: var(--sage-muted);
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.lang-switch button:hover {
+  opacity: 1;
+}
+.lang-switch button.active {
+  opacity: 1;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
 .sidebar .divider {
   border: none;
   border-top: 1px solid var(--border);

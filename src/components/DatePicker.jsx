@@ -1,20 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-
-const WEEKDAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
-const MONTH_NAMES = [
-  'Enero',
-  'Febrero',
-  'Marzo',
-  'Abril',
-  'Mayo',
-  'Junio',
-  'Julio',
-  'Agosto',
-  'Septiembre',
-  'Octubre',
-  'Noviembre',
-  'Diciembre',
-];
+import { useLanguage } from '../i18n/useLanguage';
 
 function toDateKey(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -31,7 +16,8 @@ function formatDisplay(key) {
   return `${String(day).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
 }
 
-export function DatePicker({ value, onChange, min, placeholder = 'Seleccioná una fecha' }) {
+export function DatePicker({ value, onChange, min, placeholder }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [viewDate, setViewDate] = useState(() => {
     const base = value || min || toDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
@@ -78,7 +64,7 @@ export function DatePicker({ value, onChange, min, placeholder = 'Seleccioná un
       <input
         className="f"
         readOnly
-        placeholder={placeholder}
+        placeholder={placeholder ?? t.dates.selectDate}
         value={formatDisplay(value)}
         onClick={() => setOpen((v) => !v)}
       />
@@ -89,14 +75,14 @@ export function DatePicker({ value, onChange, min, placeholder = 'Seleccioná un
               ‹
             </button>
             <span>
-              {MONTH_NAMES[viewDate.month]} {viewDate.year}
+              {t.dates.months[viewDate.month]} {viewDate.year}
             </span>
             <button type="button" className="icon-btn" onClick={() => changeMonth(1)}>
               ›
             </button>
           </div>
           <div className="datepicker-grid datepicker-weekdays">
-            {WEEKDAYS.map((day) => (
+            {t.dates.weekdays.map((day) => (
               <span key={day}>{day}</span>
             ))}
           </div>

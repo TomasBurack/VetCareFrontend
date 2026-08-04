@@ -3,6 +3,7 @@ import { CalendarCheck, PawPrint, Stethoscope } from 'lucide-react';
 import { Button } from '../components/Button';
 import { ThemeSwitch } from '../components/ThemeSwitch';
 import { BackgroundCarousel } from '../components/BackgroundCarousel';
+import { useLanguage } from '../i18n/useLanguage';
 
 const HERO_IMAGES = [
   '/welcome/slide-1.jpg',
@@ -11,25 +12,27 @@ const HERO_IMAGES = [
   '/welcome/slide-4.jpg',
 ];
 
-const SERVICES = [
-  {
-    icon: CalendarCheck,
-    title: 'Turnos online',
-    description: 'Pedí y gestioná los turnos de tus mascotas desde cualquier lugar, sin llamadas ni esperas.',
-  },
-  {
-    icon: PawPrint,
-    title: 'Historial de mascotas',
-    description: 'Toda la información de tus mascotas organizada y disponible cuando la necesites.',
-  },
-  {
-    icon: Stethoscope,
-    title: 'Atención veterinaria profesional',
-    description: 'Un equipo de veterinarios listos para acompañar la salud de tu mascota en cada etapa.',
-  },
-];
-
 export function Welcome() {
+  const { t } = useLanguage();
+
+  const services = [
+    {
+      icon: CalendarCheck,
+      title: t.welcome.features.shiftsTitle,
+      description: t.welcome.features.shiftsText,
+    },
+    {
+      icon: PawPrint,
+      title: t.welcome.features.historyTitle,
+      description: t.welcome.features.historyText,
+    },
+    {
+      icon: Stethoscope,
+      title: t.welcome.features.vetsTitle,
+      description: t.welcome.features.vetsText,
+    },
+  ];
+
   return (
     <div className="welcome-wrap">
       <header className="welcome-header">
@@ -42,24 +45,21 @@ export function Welcome() {
       <main className="welcome-hero">
         <BackgroundCarousel images={HERO_IMAGES} className="welcome-hero-bg" />
         <div className="welcome-hero-inner">
-          <h1 className="welcome-title">Cuidamos a tus mascotas, en cada etapa</h1>
-          <p className="welcome-sub">
-            Gestioná turnos, seguí el historial clínico y accedé a atención veterinaria profesional, todo en un
-            solo lugar.
-          </p>
+          <h1 className="welcome-title">{t.welcome.tagline}</h1>
+          <p className="welcome-sub">{t.welcome.description}</p>
           <div className="welcome-cta">
             <Link to="/login">
-              <Button variant="primary">Iniciar sesión</Button>
+              <Button variant="primary">{t.welcome.signIn}</Button>
             </Link>
             <Link to="/register">
-              <Button variant="outline">Crear cuenta</Button>
+              <Button variant="outline">{t.welcome.signUp}</Button>
             </Link>
           </div>
         </div>
       </main>
 
       <section className="welcome-services grid cols-3">
-        {SERVICES.map((service) => (
+        {services.map((service) => (
           <div key={service.title} className="ficha ficha-pad welcome-service-card">
             <service.icon className="welcome-service-icon" size={28} />
             <div className="welcome-service-title">{service.title}</div>
