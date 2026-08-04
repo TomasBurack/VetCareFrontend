@@ -35,10 +35,7 @@ export function ClientPets() {
     try {
       const data = await petApi.list();
       setPets(data ?? []);
-    } catch (err) {
-      if (!(err instanceof ApiError && err.status === 404)) {
-        setErrors(err instanceof ApiError ? err.messages : ['No hay mascotas disponibles.']);
-      }
+    } catch {
       setPets([]);
     } finally {
       setLoading(false);
