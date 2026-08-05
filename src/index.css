@@ -878,6 +878,27 @@ h1.page-title {
   display: inline-block;
   margin-left: 0.15rem;
 }
+.shifts-table thead tr.filter-row th {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.col-filter {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--ink);
+}
+.col-filter:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
 .shifts-table tbody tr {
   border-bottom: 1px solid var(--border);
 }

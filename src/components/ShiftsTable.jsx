@@ -8,13 +8,17 @@ import {
 } from '@tanstack/react-table';
 import { Badge } from './Badge';
 import { TruncatedText } from './TruncatedText';
+import { TableColumnFilter } from './TableColumnFilter';
 import { formatShiftDate } from '../utils/date';
 import { useLanguage } from '../i18n/useLanguage';
+
+const STATUS_KEYS = ['pendant', 'served', 'canceled'];
 
 export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, renderObservations }) {
   const { t } = useLanguage();
   const [sorting, setSorting] = useState([{ id: 'date', desc: true }]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [columnFilters, setColumnFilters] = useState([]);
 
   const columns = useMemo(() => {
     const cols = [
@@ -50,6 +54,8 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, r
         header: t.shifts.date,
         accessorFn: (shift) => shift.dateShift,
         sortingFn: (a, b) => new Date(a.getValue('date')) - new Date(b.getValue('date')),
+        filterFn: (row, columnId, filterValue) =>
+          formatShiftDate(row.getValue(columnId)).toLowerCase().includes(String(filterValue).toLowerCase()),
         cell: ({ getValue }) => formatShiftDate(getValue()),
       },
       {
@@ -57,6 +63,11 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, r
         header: t.shifts.status,
         accessorFn: (shift) => t.shifts.statuses[shift.status?.toLowerCase()] ?? shift.status,
         enableSorting: false,
+        filterFn: 'equals',
+        meta: {
+          filterVariant: 'select',
+          filterOptions: STATUS_KEYS.map((key) => ({ value: t.shifts.statuses[key], label: t.shifts.statuses[key] })),
+        },
         cell: ({ row }) => <Badge status={row.original.status?.toLowerCase()} />,
       },
       {
@@ -64,7 +75,6 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, r
         header: t.shifts.observationsShort,
         accessorFn: (shift) => shift.observations ?? '',
         enableSorting: false,
-        enableGlobalFilter: !renderObservations,
         cell: ({ row }) => {
           const shift = row.original;
           if (renderObservations) return renderObservations(shift);
@@ -82,6 +92,7 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, r
         header: t.common.actions,
         enableSorting: false,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
         cell: ({ row }) => renderActions(row.original),
       });
     }
@@ -92,14 +103,17 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, r
   const table = useReactTable({
     data: shifts,
     columns,
-    state: { sorting, globalFilter },
+    state: { sorting, globalFilter, columnFilters },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: setColumnFilters,
     getRowId: (shift) => shift.id,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
+
+  const headerGroup = table.getHeaderGroups()[0];
 
   return (
     <div className="shifts-table-wrap">
@@ -114,27 +128,32 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, r
       <div className="table-scroll">
         <table className="shifts-table">
           <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  const sortable = header.column.getCanSort();
-                  return (
-                    <th
-                      key={header.id}
-                      className={sortable ? 'sortable' : undefined}
-                      onClick={sortable ? header.column.getToggleSortingHandler() : undefined}
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {sortable && (
-                        <span className="sort-arrow">
-                          {header.column.getIsSorted() === 'asc' ? '↑' : header.column.getIsSorted() === 'desc' ? '↓' : ''}
-                        </span>
-                      )}
-                    </th>
-                  );
-                })}
-              </tr>
-            ))}
+            <tr>
+              {headerGroup.headers.map((header) => {
+                const sortable = header.column.getCanSort();
+                return (
+                  <th
+                    key={header.id}
+                    className={sortable ? 'sortable' : undefined}
+                    onClick={sortable ? header.column.getToggleSortingHandler() : undefined}
+                  >
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {sortable && (
+                      <span className="sort-arrow">
+                        {header.column.getIsSorted() === 'asc' ? '↑' : header.column.getIsSorted() === 'desc' ? '↓' : ''}
+                      </span>
+                    )}
+                  </th>
+                );
+              })}
+            </tr>
+            <tr className="filter-row">
+              {headerGroup.headers.map((header) => (
+                <th key={`filter-${header.id}`}>
+                  <TableColumnFilter column={header.column} />
+                </th>
+              ))}
+            </tr>
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
