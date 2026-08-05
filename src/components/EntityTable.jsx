@@ -27,6 +27,10 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
         String(a.getValue(columnId) ?? '').localeCompare(String(b.getValue(columnId) ?? ''), undefined, {
           sensitivity: 'base',
         }),
+      filterFn: col.filterVariant === 'select' ? 'equals' : undefined,
+      meta: col.filterVariant
+        ? { filterVariant: col.filterVariant, filterOptions: col.filterOptions }
+        : undefined,
       cell: ({ row }) => col.render(row.original),
     }));
 
