@@ -83,6 +83,7 @@ const PATTERNS = [
   [/^Las observaciones son obligatorias\.$/, () => 'Observations are required.'],
   [/^Las observaciones no pueden superar los 1000 caracteres\.$/, () => 'Observations cannot exceed 1000 characters.'],
   [/^Solo se pueden agregar observaciones a los turnos con estado 'Served'\.$/, () => "Observations can only be added to appointments with status 'Attended'."],
+  [/^No se puede marcar como 'Served' un turno cuya fecha aún no llegó\.$/, () => "An appointment cannot be marked as 'Attended' before its scheduled date."],
 
   // ---------- recursos no encontrados ----------
   [/^No se encontró ninguna mascota con el id '(.+)'\.$/, (id) => `No pet was found with id '${id}'.`],

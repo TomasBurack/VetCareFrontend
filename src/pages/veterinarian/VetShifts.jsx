@@ -115,7 +115,9 @@ export function VetShifts() {
                   onChange={(e) => e.target.value && changeStatus(shift.id, e.target.value)}
                 >
                   <option value="">{t.vetShifts.changeStatus}</option>
-                  {STATUS_OPTIONS.map((option) => (
+                  {STATUS_OPTIONS.filter(
+                    (option) => option !== 'Served' || new Date(shift.dateShift) <= new Date()
+                  ).map((option) => (
                     <option key={option} value={option}>
                       {option === 'Served' ? t.shifts.markServed : t.shifts.cancelShift}
                     </option>
