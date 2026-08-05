@@ -19,7 +19,6 @@ export function AdminPets() {
   const toast = useToast();
   const { t } = useLanguage();
   const [pets, setPets] = useState([]);
-  const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [breedFilter, setBreedFilter] = useState('');
   const [errors, setErrors] = useState([]);
@@ -133,14 +132,9 @@ export function AdminPets() {
   );
 
   const filtered = pets.filter((p) => {
-    const q = search.toLowerCase();
-    const matchesSearch =
-      p.name?.toLowerCase().includes(q) ||
-      p.ownerName?.toLowerCase().includes(q) ||
-      p.ownerEmail?.toLowerCase().includes(q);
     const matchesType = !typeFilter || p.typePet === typeFilter;
     const matchesBreed = !breedFilter || p.breed === breedFilter;
-    return matchesSearch && matchesType && matchesBreed;
+    return matchesType && matchesBreed;
   });
 
   return (
@@ -153,12 +147,6 @@ export function AdminPets() {
       <div className="toolbar">
         {editingId === null && (
           <>
-            <input
-              className="search"
-              placeholder={t.adminPets.searchPlaceholder}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
             <select
               className="f"
               style={{ width: 'auto', margin: 0 }}

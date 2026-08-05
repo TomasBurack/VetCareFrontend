@@ -16,7 +16,6 @@ export function SysadminAdmins() {
   const toast = useToast();
   const { t } = useLanguage();
   const [admins, setAdmins] = useState([]);
-  const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [creating, setCreating] = useState(false);
@@ -96,11 +95,6 @@ export function SysadminAdmins() {
     }
   }
 
-  const filtered = admins.filter((a) => {
-    const q = search.toLowerCase();
-    return `${a.firstName} ${a.lastName}`.toLowerCase().includes(q) || a.email?.toLowerCase().includes(q);
-  });
-
   return (
     <>
       <h1 className="page-title">
@@ -119,14 +113,7 @@ export function SysadminAdmins() {
       </p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
-        {!isFormOpen && (
-          <input
-            className="search"
-            placeholder={t.sysadminAdmins.searchPlaceholder}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        )}
+        <div />
         {isFormOpen ? (
           <Button variant="outline" onClick={closeForm}>
             {t.common.cancel}
@@ -198,7 +185,7 @@ export function SysadminAdmins() {
         </FormCard>
       ) : (
         <EntityTable
-          rows={filtered}
+          rows={admins}
           columns={[
             { label: t.common.name, render: (a) => `${a.firstName} ${a.lastName}` },
             { label: t.common.dni, render: (a) => a.dni },

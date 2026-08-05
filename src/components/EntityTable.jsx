@@ -1,62 +1,104 @@
 import { useMemo, useState } from 'react';
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import { useLanguage } from '../i18n/useLanguage';
 
 export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
   const { t } = useLanguage();
-  const [sort, setSort] = useState(null);
+  const [sorting, setSorting] = useState([]);
+  const [globalFilter, setGlobalFilter] = useState('');
 
-  const sortedRows = useMemo(() => {
-    if (!sort) return rows;
-    const column = columns.find((col) => col.sortKey === sort.key);
-    if (!column) return rows;
-    const factor = sort.direction === 'asc' ? 1 : -1;
-    return [...rows].sort((a, b) => {
-      const valueA = column.sortValue ? column.sortValue(a) : column.render(a);
-      const valueB = column.sortValue ? column.sortValue(b) : column.render(b);
-      return factor * String(valueA ?? '').localeCompare(String(valueB ?? ''), undefined, { sensitivity: 'base' });
-    });
-  }, [rows, sort, columns]);
+  const columnDefs = useMemo(() => {
+    const defs = columns.map((col, index) => ({
+      id: col.sortKey ?? `col-${index}`,
+      header: col.label,
+      accessorFn: (row) => (col.sortValue ? col.sortValue(row) : col.render(row)),
+      enableSorting: Boolean(col.sortKey),
+      sortingFn: (a, b, columnId) =>
+        String(a.getValue(columnId) ?? '').localeCompare(String(b.getValue(columnId) ?? ''), undefined, {
+          sensitivity: 'base',
+        }),
+      cell: ({ row }) => col.render(row.original),
+    }));
 
-  function toggleSort(key) {
-    setSort((prev) => {
-      if (prev?.key !== key) return { key, direction: 'asc' };
-      return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
-    });
-  }
+    if (renderActions) {
+      defs.push({
+        id: 'actions',
+        header: t.common.actions,
+        enableSorting: false,
+        enableGlobalFilter: false,
+        cell: ({ row }) => renderActions(row.original),
+      });
+    }
+
+    return defs;
+  }, [columns, renderActions, t]);
+
+  const table = useReactTable({
+    data: rows,
+    columns: columnDefs,
+    state: { sorting, globalFilter },
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    getRowId: (row) => row[keyField],
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+  });
 
   return (
     <div className="shifts-table-wrap">
-      <table className="shifts-table">
-        <thead>
-          <tr>
-            {columns.map((col) =>
-              col.sortKey ? (
-                <th key={col.label} className="sortable" onClick={() => toggleSort(col.sortKey)}>
-                  {col.label}{' '}
-                  <span className="sort-arrow">
-                    {sort?.key === col.sortKey ? (sort.direction === 'asc' ? '↑' : '↓') : ''}
-                  </span>
-                </th>
-              ) : (
-                <th key={col.label}>{col.label}</th>
-              ),
-            )}
-            {renderActions && <th>{t.common.actions}</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {sortedRows.map((row) => (
-            <tr key={row[keyField]}>
-              {columns.map((col) => (
-                <td key={col.label} data-label={col.label}>
-                  {col.render(row)}
-                </td>
-              ))}
-              {renderActions && <td data-label={t.common.actions}>{renderActions(row)}</td>}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="table-search-bar">
+        <input
+          className="search"
+          placeholder={t.common.search}
+          value={globalFilter}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+        />
+      </div>
+      <div className="table-scroll">
+        <table className="shifts-table">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  const sortable = header.column.getCanSort();
+                  return (
+                    <th
+                      key={header.id}
+                      className={sortable ? 'sortable' : undefined}
+                      onClick={sortable ? header.column.getToggleSortingHandler() : undefined}
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {sortable && (
+                        <span className="sort-arrow">
+                          {header.column.getIsSorted() === 'asc' ? '↑' : header.column.getIsSorted() === 'desc' ? '↓' : ''}
+                        </span>
+                      )}
+                    </th>
+                  );
+                })}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} data-label={cell.column.columnDef.header}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

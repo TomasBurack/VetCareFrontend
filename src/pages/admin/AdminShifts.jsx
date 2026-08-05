@@ -36,7 +36,6 @@ export function AdminShifts() {
   const { t } = useLanguage();
   const [shifts, setShifts] = useState([]);
   const [tab, setTab] = useState('all');
-  const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [viewingObservations, setViewingObservations] = useState(null);
@@ -81,12 +80,7 @@ export function AdminShifts() {
     }
   }
 
-  const filtered = shifts.filter((s) => {
-    const status = s.status?.toLowerCase();
-    if (tab !== 'all' && status !== tab) return false;
-    const q = search.toLowerCase();
-    return !q || s.petName?.toLowerCase().includes(q) || s.veterinarianName?.toLowerCase().includes(q);
-  });
+  const filtered = tab === 'all' ? shifts : shifts.filter((s) => s.status?.toLowerCase() === tab);
 
   return (
     <>
@@ -102,12 +96,6 @@ export function AdminShifts() {
             </button>
           ))}
         </div>
-        <input
-          className="search"
-          placeholder={t.adminShifts.searchPlaceholder}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
       </div>
 
       <ShiftsTable
