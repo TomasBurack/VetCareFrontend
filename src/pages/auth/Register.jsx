@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthCard } from '../../components/AuthCard';
-import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
@@ -34,6 +33,7 @@ export function Register() {
   const fieldErrors = Object.fromEntries(
     Object.entries(byField).map(([field, messages]) => [field, tApiList(messages)]),
   );
+  const passwordErrors = [...(fieldErrors.password ?? []), ...tApiList(rest)];
 
   function update(field) {
     return (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -58,7 +58,6 @@ export function Register() {
 
   return (
     <AuthCard title={t.auth.registerTitle} subtitle={t.auth.registerSubtitleLong}>
-      <ErrorBanner messages={rest} />
       <form onSubmit={handleSubmit}>
         <div className="grid cols-2">
           <Field
@@ -112,7 +111,7 @@ export function Register() {
           placeholder={t.common.minEightChars}
           value={form.password}
           onChange={update('password')}
-          errors={fieldErrors.password}
+          errors={passwordErrors.length > 0 ? passwordErrors : undefined}
         />
         <Button type="submit" disabled={submitting} style={{ width: '100%', justifyContent: 'center', marginTop: '.25rem' }}>
           {submitting ? t.auth.registering : t.auth.registerSubmit}

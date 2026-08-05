@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthCard } from '../../components/AuthCard';
-import { ErrorBanner } from '../../components/ErrorBanner';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
@@ -29,6 +28,7 @@ export function Login() {
   const fieldErrors = Object.fromEntries(
     Object.entries(byField).map(([field, messages]) => [field, tApiList(messages)]),
   );
+  const passwordErrors = [...(fieldErrors.password ?? []), ...tApiList(rest)];
 
   function goToDestination(session) {
     const target = location.state?.from?.pathname ?? ROLE_HOME[session.role] ?? '/';
@@ -76,7 +76,6 @@ export function Login() {
   if (pendingToken) {
     return (
       <AuthCard title={t.auth.twoFactorTitle} subtitle={t.auth.twoFactorSubtitle}>
-        <ErrorBanner messages={errors} />
         <form onSubmit={handleVerifySubmit}>
           <Field
             label={t.auth.codeLabel}
@@ -85,6 +84,7 @@ export function Login() {
             placeholder={t.auth.codePlaceholder}
             value={code}
             onChange={(e) => setCode(e.target.value)}
+            errors={tApiList(errors)}
           />
           <Button type="submit" disabled={submitting} style={{ width: '100%', justifyContent: 'center' }}>
             {submitting ? t.twoFactor.verifying : t.twoFactor.verifySubmit}
@@ -109,7 +109,6 @@ export function Login() {
 
   return (
     <AuthCard title={t.auth.loginTitle} subtitle={t.auth.loginSubtitleShort}>
-      <ErrorBanner messages={rest} />
       <form onSubmit={handleSubmit}>
         <Field
           label={t.common.email}
@@ -127,7 +126,7 @@ export function Login() {
           placeholder={t.common.passwordPlaceholder}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          errors={fieldErrors.password}
+          errors={passwordErrors.length > 0 ? passwordErrors : undefined}
         />
         <div style={{ textAlign: 'right', marginTop: '-0.7rem', marginBottom: '1.1rem' }}>
           <Link to="/forgot-password" style={{ fontSize: '.78rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>
