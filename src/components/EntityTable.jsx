@@ -18,21 +18,28 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const columnDefs = useMemo(() => {
-    const defs = columns.map((col, index) => ({
-      id: col.sortKey ?? `col-${index}`,
-      header: col.label,
-      accessorFn: (row) => (col.sortValue ? col.sortValue(row) : col.render(row)),
-      enableSorting: Boolean(col.sortKey),
-      sortingFn: (a, b, columnId) =>
-        String(a.getValue(columnId) ?? '').localeCompare(String(b.getValue(columnId) ?? ''), undefined, {
-          sensitivity: 'base',
-        }),
-      filterFn: col.filterVariant === 'select' ? 'equals' : undefined,
-      meta: col.filterVariant
-        ? { filterVariant: col.filterVariant, filterOptions: col.filterOptions }
-        : undefined,
-      cell: ({ row }) => col.render(row.original),
-    }));
+    const defs = columns.map((col, index) => {
+      const def = {
+        id: col.sortKey ?? `col-${index}`,
+        header: col.label,
+        accessorFn: (row) => (col.sortValue ? col.sortValue(row) : col.render(row)),
+        enableSorting: Boolean(col.sortKey),
+        sortingFn: (a, b, columnId) =>
+          String(a.getValue(columnId) ?? '').localeCompare(String(b.getValue(columnId) ?? ''), undefined, {
+            sensitivity: 'base',
+          }),
+        cell: ({ row }) => col.render(row.original),
+      };
+
+      if (col.filterVariant) {
+        def.meta = { filterVariant: col.filterVariant, filterOptions: col.filterOptions };
+      }
+      if (col.filterVariant === 'select') {
+        def.filterFn = 'equals';
+      }
+
+      return def;
+    });
 
     if (renderActions) {
       defs.push({
