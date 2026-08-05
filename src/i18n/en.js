@@ -153,6 +153,10 @@ export const en = {
       phone: '+54 9 11 2200-1147',
       email: 'agustin.sentis@gmail.com',
     },
+    viewPets: 'View pets',
+    petsTitle: (name) => `${name}'s pets`,
+    petsLoadError: 'Pets could not be loaded.',
+    noPets: 'This client has no pets registered.',
   },
 
   // ---------- view: veterinarians (admin) ----------

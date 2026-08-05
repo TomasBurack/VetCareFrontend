@@ -1035,6 +1035,27 @@ h1.page-title {
   justify-content: flex-end;
   gap: 0.6rem;
 }
+.modal-mock:has(.pets-overlay-table) {
+  max-width: 640px;
+}
+.pets-overlay-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+.pets-overlay-table th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--sage-muted);
+  padding: 0 0.6rem 0.5rem 0;
+}
+.pets-overlay-table td {
+  padding: 0.5rem 0.6rem 0.5rem 0;
+  border-top: 1px solid var(--border);
+}
 
 .truncated-text {
   cursor: pointer;

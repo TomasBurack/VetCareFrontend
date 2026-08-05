@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { clientApi } from '../../api/endpoints';
+import { clientApi, petApi } from '../../api/endpoints';
 import { ApiError } from '../../api/client';
 import { ErrorBanner } from '../../components/ErrorBanner';
 import { EntityTable } from '../../components/EntityTable';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
+import { ClientPetsOverlay } from '../../components/ClientPetsOverlay';
 import { Field } from '../../components/Field';
 import { FormCard } from '../../components/FormCard';
 import { Button } from '../../components/Button';
@@ -24,6 +25,10 @@ export function AdminClients() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const isFormOpen = creating || editingId !== null;
+  const [viewingPetsFor, setViewingPetsFor] = useState(null);
+  const [clientPets, setClientPets] = useState([]);
+  const [petsLoading, setPetsLoading] = useState(false);
+  const [petsError, setPetsError] = useState(null);
 
   async function load() {
     try {
@@ -80,6 +85,26 @@ export function AdminClients() {
     setForm(EMPTY_FORM);
     setCreating(false);
     setEditingId(null);
+  }
+
+  async function viewPets(client) {
+    setViewingPetsFor(client);
+    setPetsLoading(true);
+    setPetsError(null);
+    try {
+      const allPets = await petApi.allAdmin();
+      setClientPets((allPets ?? []).filter((p) => p.ownerEmail === client.email));
+    } catch (err) {
+      setPetsError(err instanceof ApiError ? err.messages[0] : t.adminClients.petsLoadError);
+    } finally {
+      setPetsLoading(false);
+    }
+  }
+
+  function closePetsView() {
+    setViewingPetsFor(null);
+    setClientPets([]);
+    setPetsError(null);
   }
 
   async function confirmDelete() {
@@ -210,6 +235,9 @@ export function AdminClients() {
           ]}
           renderActions={(client) => (
             <div className="actions">
+              <button className="btn-text" onClick={() => viewPets(client)}>
+                {t.adminClients.viewPets}
+              </button>
               <button className="btn-text" onClick={() => startEdit(client)}>
                 {t.common.edit}
               </button>
@@ -227,6 +255,16 @@ export function AdminClients() {
           description={t.adminClients.deleteDescription}
           onCancel={() => setPendingDelete(null)}
           onConfirm={confirmDelete}
+        />
+      )}
+
+      {viewingPetsFor && (
+        <ClientPetsOverlay
+          title={t.adminClients.petsTitle(`${viewingPetsFor.firstName} ${viewingPetsFor.lastName}`)}
+          pets={clientPets}
+          loading={petsLoading}
+          error={petsError}
+          onClose={closePetsView}
         />
       )}
     </>

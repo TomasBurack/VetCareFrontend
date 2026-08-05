@@ -153,6 +153,10 @@ export const es = {
       phone: '+54 9 11 2200-1147',
       email: 'agustin.sentis@gmail.com',
     },
+    viewPets: 'Ver mascotas',
+    petsTitle: (name) => `Mascotas de ${name}`,
+    petsLoadError: 'No se pudieron cargar las mascotas.',
+    noPets: 'Este cliente no tiene mascotas registradas.',
   },
 
   // ---------- vista: veterinarios (admin) ----------
