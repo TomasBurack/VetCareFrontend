@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LanguageContext } from './languageContextObject';
 import { es } from './es';
 import { en } from './en';
-import { translateApiMessage } from './apiErrors';
+import { translateApiMessage, formatApiMessageDates } from './apiErrors';
 
 const STORAGE_KEY = 'vetcare-language';
 const DICTIONARIES = { es, en };
@@ -32,10 +32,16 @@ export function LanguageProvider({ children }) {
       setLanguage,
       toggleLanguage,
       t,
-      // Traduce los mensajes que llegan del backend (siempre en español).
-      tApi: (message) => (language === 'en' ? translateApiMessage(message) : message),
+      // Traduce los mensajes que llegan del backend (siempre en español) y
+      // normaliza las fechas que puedan traer a dd/mm/yyyy hh:mm sin offset.
+      tApi: (message) => {
+        const formatted = formatApiMessageDates(message);
+        return language === 'en' ? translateApiMessage(formatted) : formatted;
+      },
       tApiList: (messages) =>
-        language === 'en' ? (messages ?? []).map(translateApiMessage) : (messages ?? []),
+        (messages ?? [])
+          .map(formatApiMessageDates)
+          .map((message) => (language === 'en' ? translateApiMessage(message) : message)),
     };
   }, [language, toggleLanguage]);
 

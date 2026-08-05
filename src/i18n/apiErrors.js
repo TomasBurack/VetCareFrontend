@@ -134,3 +134,25 @@ export function translateApiMessage(message) {
   }
   return message;
 }
+
+// Fechas como devuelve el backend en los mensajes de error, ej:
+// "8/21/2026 5:00:00 PM -03:00" -> se reemplazan por "21/08/2026 17:00".
+const BACKEND_DATE_PATTERN = /\b(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):\d{2} (AM|PM) [+-]\d{2}:\d{2}/g;
+
+function formatBackendDate(_match, month, day, year, hour, minute, meridiem) {
+  let h = Number(hour) % 12;
+  if (meridiem === 'PM') h += 12;
+  const dd = day.padStart(2, '0');
+  const mm = month.padStart(2, '0');
+  const hh = String(h).padStart(2, '0');
+  return `${dd}/${mm}/${year} ${hh}:${minute}`;
+}
+
+/**
+ * Reemplaza las fechas en formato del backend (M/D/YYYY h:mm:ss AM/PM -03:00)
+ * por dd/mm/yyyy hh:mm, sin offset. Se aplica independientemente del idioma.
+ */
+export function formatApiMessageDates(message) {
+  if (typeof message !== 'string') return message;
+  return message.replace(BACKEND_DATE_PATTERN, formatBackendDate);
+}
