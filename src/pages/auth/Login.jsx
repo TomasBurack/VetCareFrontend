@@ -9,13 +9,14 @@ import { ROLE_HOME } from '../../context/roleHome';
 import { ApiError } from '../../api/client';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
+import { groupErrorsByField } from '../../i18n/fieldErrors';
 
 export function Login() {
   const { login, verifyTwoFactor } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useLanguage();
+  const { t, tApiList } = useLanguage();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,6 +24,11 @@ export function Login() {
   const [code, setCode] = useState('');
   const [errors, setErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  const { byField, rest } = groupErrorsByField(errors);
+  const fieldErrors = Object.fromEntries(
+    Object.entries(byField).map(([field, messages]) => [field, tApiList(messages)]),
+  );
 
   function goToDestination(session) {
     const target = location.state?.from?.pathname ?? ROLE_HOME[session.role] ?? '/';
@@ -103,7 +109,7 @@ export function Login() {
 
   return (
     <AuthCard title={t.auth.loginTitle} subtitle={t.auth.loginSubtitleShort}>
-      <ErrorBanner messages={errors} />
+      <ErrorBanner messages={rest} />
       <form onSubmit={handleSubmit}>
         <Field
           label={t.common.email}
@@ -112,6 +118,7 @@ export function Login() {
           placeholder={t.common.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          errors={fieldErrors.email}
         />
         <Field
           label={t.common.password}
@@ -120,6 +127,7 @@ export function Login() {
           placeholder={t.common.passwordPlaceholder}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          errors={fieldErrors.password}
         />
         <div style={{ textAlign: 'right', marginTop: '-0.7rem', marginBottom: '1.1rem' }}>
           <Link to="/forgot-password" style={{ fontSize: '.78rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>

@@ -9,6 +9,7 @@ import { ROLE_HOME } from '../../context/roleHome';
 import { ApiError } from '../../api/client';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
+import { groupErrorsByField } from '../../i18n/fieldErrors';
 
 const EMPTY_FORM = {
   firstName: '',
@@ -23,11 +24,16 @@ export function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
-  const { t } = useLanguage();
+  const { t, tApiList } = useLanguage();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  const { byField, rest } = groupErrorsByField(errors);
+  const fieldErrors = Object.fromEntries(
+    Object.entries(byField).map(([field, messages]) => [field, tApiList(messages)]),
+  );
 
   function update(field) {
     return (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -52,7 +58,7 @@ export function Register() {
 
   return (
     <AuthCard title={t.auth.registerTitle} subtitle={t.auth.registerSubtitleLong}>
-      <ErrorBanner messages={errors} />
+      <ErrorBanner messages={rest} />
       <form onSubmit={handleSubmit}>
         <div className="grid cols-2">
           <Field
@@ -61,6 +67,7 @@ export function Register() {
             placeholder={t.auth.placeholders.firstName}
             value={form.firstName}
             onChange={update('firstName')}
+            errors={fieldErrors.firstName}
           />
           <Field
             label={t.common.lastName}
@@ -68,6 +75,7 @@ export function Register() {
             placeholder={t.auth.placeholders.lastName}
             value={form.lastName}
             onChange={update('lastName')}
+            errors={fieldErrors.lastName}
           />
         </div>
         <div className="grid cols-2">
@@ -77,6 +85,7 @@ export function Register() {
             placeholder={t.auth.placeholders.dni}
             value={form.dni}
             onChange={update('dni')}
+            errors={fieldErrors.dni}
           />
           <Field
             label={t.common.phone}
@@ -84,6 +93,7 @@ export function Register() {
             placeholder={t.auth.placeholders.phone}
             value={form.phoneNumber}
             onChange={update('phoneNumber')}
+            errors={fieldErrors.phoneNumber}
           />
         </div>
         <Field
@@ -93,6 +103,7 @@ export function Register() {
           placeholder={t.common.emailPlaceholder}
           value={form.email}
           onChange={update('email')}
+          errors={fieldErrors.email}
         />
         <Field
           label={t.common.password}
@@ -101,6 +112,7 @@ export function Register() {
           placeholder={t.common.minEightChars}
           value={form.password}
           onChange={update('password')}
+          errors={fieldErrors.password}
         />
         <Button type="submit" disabled={submitting} style={{ width: '100%', justifyContent: 'center', marginTop: '.25rem' }}>
           {submitting ? t.auth.registering : t.auth.registerSubmit}

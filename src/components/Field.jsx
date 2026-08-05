@@ -15,10 +15,12 @@ function EyeIcon({ open }) {
   );
 }
 
-export function Field({ label, required, hint, type, children, ...props }) {
+export function Field({ label, required, hint, errors, type, children, ...props }) {
   const [visible, setVisible] = useState(false);
   const { t } = useLanguage();
   const isPassword = type === 'password';
+  const hasErrors = errors && errors.length > 0;
+  const inputClassName = `f${hasErrors ? ' has-error' : ''}`;
 
   return (
     <div>
@@ -29,7 +31,7 @@ export function Field({ label, required, hint, type, children, ...props }) {
       {children ?? (
         isPassword ? (
           <div className="field-password">
-            <input className="f" type={visible ? 'text' : 'password'} {...props} />
+            <input className={inputClassName} type={visible ? 'text' : 'password'} {...props} />
             <button
               type="button"
               className="field-password-toggle"
@@ -41,10 +43,18 @@ export function Field({ label, required, hint, type, children, ...props }) {
             </button>
           </div>
         ) : (
-          <input className="f" type={type} {...props} />
+          <input className={inputClassName} type={type} {...props} />
         )
       )}
-      {hint && <div className="field-hint">{hint}</div>}
+      {hasErrors ? (
+        <div className="field-error">
+          {errors.map((error) => (
+            <div key={error}>{error}</div>
+          ))}
+        </div>
+      ) : (
+        hint && <div className="field-hint">{hint}</div>
+      )}
     </div>
   );
 }
