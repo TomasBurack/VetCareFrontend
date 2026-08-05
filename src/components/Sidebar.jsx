@@ -38,6 +38,7 @@ const ROLE_NAV = {
       { to: '/clientes', label: (t) => t.nav.clients },
       { to: '/veterinarios', label: (t) => t.nav.veterinarians },
       { to: '/mascotas', label: (t) => t.nav.pets },
+      { to: '/turnos', label: (t) => t.nav.shiftsGlobal },
       { to: '/mi-perfil', label: (t) => t.nav.profile },
     ],
   },

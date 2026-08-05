@@ -57,7 +57,7 @@ export const router = createBrowserRouter([
           },
 
           {
-            element: <RoleRoute roles={['Administrator']} />,
+            element: <RoleRoute roles={['Administrator', 'SysAdmin']} />,
             children: [{ path: '/turnos', element: <AdminShifts /> }],
           },
 
