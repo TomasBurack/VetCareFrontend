@@ -245,6 +245,9 @@ export const es = {
     cancelShift: 'Cancelar turno',
     reason: 'Motivo de la consulta',
     reasonShort: 'Motivo',
+    observations: 'Observaciones del veterinario',
+    observationsShort: 'Observaciones',
+    noObservations: 'Sin observaciones',
   },
 
   // ---------- vista: mis turnos (cliente) ----------
@@ -301,6 +304,12 @@ export const es = {
       served: 'Atendidos',
       canceled: 'Cancelados',
     },
+    addObservations: 'Agregar observaciones',
+    editObservations: 'Editar observaciones',
+    observationsPlaceholder: 'Ej: se observa buen estado general, se indica control en 15 días…',
+    observationsSaved: 'Observaciones guardadas correctamente.',
+    observationsError: 'No se pudieron guardar las observaciones.',
+    saveObservations: 'Guardar observaciones',
   },
 
   // ---------- vista: turnos globales (admin) ----------

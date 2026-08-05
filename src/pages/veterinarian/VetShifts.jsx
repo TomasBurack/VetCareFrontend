@@ -4,6 +4,7 @@ import { ApiError } from '../../api/client';
 import { ErrorBanner } from '../../components/ErrorBanner';
 import { ShiftsTable } from '../../components/ShiftsTable';
 import { EmptyState } from '../../components/EmptyState';
+import { ShiftObservationsOverlay } from '../../components/ShiftObservationsOverlay';
 import { CalendarDays } from 'lucide-react';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
@@ -17,6 +18,9 @@ export function VetShifts() {
   const [shifts, setShifts] = useState([]);
   const [tab, setTab] = useState('all');
   const [errors, setErrors] = useState([]);
+  const [editingObservations, setEditingObservations] = useState(null);
+  const [observationsSubmitting, setObservationsSubmitting] = useState(false);
+  const [observationsError, setObservationsError] = useState(null);
 
   async function load() {
     try {
@@ -44,6 +48,23 @@ export function VetShifts() {
       const messages = err instanceof ApiError ? err.messages : [t.vetShifts.updateError];
       setErrors(messages);
       toast.error(messages[0]);
+    }
+  }
+
+  async function saveObservations(observations) {
+    setObservationsSubmitting(true);
+    setObservationsError(null);
+    try {
+      await shiftApi.updateObservationsAsVeterinarian(editingObservations.id, observations);
+      toast.success(t.vetShifts.observationsSaved);
+      setEditingObservations(null);
+      load();
+    } catch (err) {
+      const messages = err instanceof ApiError ? err.messages : [t.vetShifts.observationsError];
+      setObservationsError(messages[0]);
+      toast.error(messages[0]);
+    } finally {
+      setObservationsSubmitting(false);
     }
   }
 
@@ -84,23 +105,44 @@ export function VetShifts() {
       {shifts.length > 0 && (
         <ShiftsTable
           shifts={filtered}
-          renderActions={(shift) =>
-            shift.status?.toLowerCase() === 'pendant' && (
-              <select
-                className="f"
-                style={{ width: 'auto', margin: 0, padding: '.4rem .6rem', fontSize: '.78rem' }}
-                value=""
-                onChange={(e) => e.target.value && changeStatus(shift.id, e.target.value)}
+          renderActions={(shift) => (
+            <div style={{ display: 'flex', gap: '.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              {shift.status?.toLowerCase() === 'pendant' && (
+                <select
+                  className="f"
+                  style={{ width: 'auto', margin: 0, padding: '.4rem .6rem', fontSize: '.78rem' }}
+                  value=""
+                  onChange={(e) => e.target.value && changeStatus(shift.id, e.target.value)}
+                >
+                  <option value="">{t.vetShifts.changeStatus}</option>
+                  {STATUS_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option === 'Served' ? t.shifts.markServed : t.shifts.cancelShift}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <button
+                className="btn-text"
+                onClick={() => {
+                  setObservationsError(null);
+                  setEditingObservations(shift);
+                }}
               >
-                <option value="">{t.vetShifts.changeStatus}</option>
-                {STATUS_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option === 'Served' ? t.shifts.markServed : t.shifts.cancelShift}
-                  </option>
-                ))}
-              </select>
-            )
-          }
+                {shift.observations ? t.vetShifts.editObservations : t.vetShifts.addObservations}
+              </button>
+            </div>
+          )}
+        />
+      )}
+
+      {editingObservations && (
+        <ShiftObservationsOverlay
+          initialValue={editingObservations.observations ?? ''}
+          submitting={observationsSubmitting}
+          error={observationsError}
+          onCancel={() => setEditingObservations(null)}
+          onSave={saveObservations}
         />
       )}
     </>

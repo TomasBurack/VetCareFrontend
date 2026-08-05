@@ -54,6 +54,8 @@ export const shiftApi = {
   cancelAsClient: (id) => api.put(`/api/shift/status/client/${id}`),
   updateStatusAsVeterinarian: (id, status) =>
     api.put(`/api/shift/status/veterinarian/${id}`, { status }),
+  updateObservationsAsVeterinarian: (id, observations) =>
+    api.put(`/api/shift/observations/${id}`, { observations }),
   updateStatusAsAdmin: (id, status) =>
     api.put(`/api/admins/shift/status/${id}`, { status }),
   removeAsAdmin: (id) => api.delete(`/api/admins/shift/delete/${id}`),

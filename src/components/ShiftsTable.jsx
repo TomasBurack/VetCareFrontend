@@ -29,6 +29,7 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions })
               {t.shifts.date} <span className="sort-arrow">{dateSort === 'asc' ? '↑' : '↓'}</span>
             </th>
             <th>{t.shifts.status}</th>
+            <th>{t.shifts.observationsShort}</th>
             {renderActions && <th>{t.common.actions}</th>}
           </tr>
         </thead>
@@ -45,6 +46,13 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions })
                 <td data-label={t.shifts.date}>{formatShiftDate(shift.dateShift)}</td>
                 <td data-label={t.shifts.status}>
                   <Badge status={status} />
+                </td>
+                <td data-label={t.shifts.observationsShort}>
+                  {shift.observations ? (
+                    <TruncatedText text={shift.observations} title={t.shifts.observations} />
+                  ) : (
+                    <span style={{ color: 'var(--sage-muted)' }}>{t.shifts.noObservations}</span>
+                  )}
                 </td>
                 {renderActions && <td data-label={t.common.actions}>{renderActions(shift)}</td>}
               </tr>

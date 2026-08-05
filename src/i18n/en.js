@@ -245,6 +245,9 @@ export const en = {
     cancelShift: 'Cancel appointment',
     reason: 'Reason for the visit',
     reasonShort: 'Reason',
+    observations: "Veterinarian's observations",
+    observationsShort: 'Observations',
+    noObservations: 'No observations',
   },
 
   // ---------- view: my appointments (client) ----------
@@ -301,6 +304,12 @@ export const en = {
       served: 'Attended',
       canceled: 'Canceled',
     },
+    addObservations: 'Add observations',
+    editObservations: 'Edit observations',
+    observationsPlaceholder: 'e.g. patient in good general condition, follow-up in 15 days…',
+    observationsSaved: 'Observations saved successfully.',
+    observationsError: 'The observations could not be saved.',
+    saveObservations: 'Save observations',
   },
 
   // ---------- view: global appointments (admin) ----------

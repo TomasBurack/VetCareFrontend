@@ -80,6 +80,8 @@ const PATTERNS = [
   [/^El turno no pertenece al veterinario autenticado\.$/, () => 'The appointment does not belong to the authenticated veterinarian.'],
   [/^La mascota no pertenece al cliente autenticado\.$/, () => 'The pet does not belong to the authenticated client.'],
   [/^El veterinario ya tiene un turno el '(.+)'\.$/, (date) => `The veterinarian already has an appointment on '${date}'.`],
+  [/^Las observaciones son obligatorias\.$/, () => 'Observations are required.'],
+  [/^Las observaciones no pueden superar los 1000 caracteres\.$/, () => 'Observations cannot exceed 1000 characters.'],
 
   // ---------- recursos no encontrados ----------
   [/^No se encontró ninguna mascota con el id '(.+)'\.$/, (id) => `No pet was found with id '${id}'.`],

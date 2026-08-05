@@ -365,6 +365,9 @@ textarea.f.has-error {
   align-items: center;
   gap: 0.75rem;
 }
+.auth-header-switches .theme-switch {
+  margin: 0;
+}
 .auth-card-outer {
   flex: 1;
   width: 100%;
@@ -449,6 +452,9 @@ textarea.f.has-error {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+.welcome-header-switches .theme-switch {
+  margin: 0;
 }
 .welcome-hero {
   position: relative;
