@@ -472,6 +472,7 @@ export const es = {
   welcome: {
     signIn: 'Iniciar sesión',
     signUp: 'Crear cuenta',
+    backHome: 'Volver al inicio',
     tagline: 'Cuidamos a tus mascotas, en cada etapa',
     description:
       'Gestioná turnos, seguí el historial clínico y accedé a atención veterinaria profesional, todo en un solo lugar.',

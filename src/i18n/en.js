@@ -472,6 +472,7 @@ export const en = {
   welcome: {
     signIn: 'Sign in',
     signUp: 'Create account',
+    backHome: 'Back to home',
     tagline: 'We care for your pets, at every stage',
     description:
       'Manage appointments, follow the clinical history and get professional veterinary care, all in one place.',

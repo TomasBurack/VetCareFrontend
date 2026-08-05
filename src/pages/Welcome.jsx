@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
-import { CalendarCheck, PawPrint, Stethoscope } from 'lucide-react';
+import { CalendarCheck, PawPrint, Stethoscope, UserCircle } from 'lucide-react';
 import { Button } from '../components/Button';
 import { ThemeSwitch } from '../components/ThemeSwitch';
+import { LanguageSwitch } from '../components/LanguageSwitch';
 import { BackgroundCarousel } from '../components/BackgroundCarousel';
 import { useLanguage } from '../i18n/useLanguage';
+import { useAuth } from '../context/useAuth';
+import { ROLE_HOME } from '../context/roleHome';
 
 const HERO_IMAGES = [
   '/welcome/slide-1.jpg',
@@ -14,6 +17,7 @@ const HERO_IMAGES = [
 
 export function Welcome() {
   const { t } = useLanguage();
+  const { isAuthenticated, isResolvingSession, role } = useAuth();
 
   const services = [
     {
@@ -39,7 +43,10 @@ export function Welcome() {
         <div className="auth-brand">
           <span className="mark">V</span> VetCare
         </div>
-        <ThemeSwitch className="welcome-theme-switch" />
+        <div className="welcome-header-switches">
+          <LanguageSwitch />
+          <ThemeSwitch className="welcome-theme-switch" />
+        </div>
       </header>
 
       <main className="welcome-hero">
@@ -47,14 +54,27 @@ export function Welcome() {
         <div className="welcome-hero-inner">
           <h1 className="welcome-title">{t.welcome.tagline}</h1>
           <p className="welcome-sub">{t.welcome.description}</p>
-          <div className="welcome-cta">
-            <Link to="/login">
-              <Button variant="primary">{t.welcome.signIn}</Button>
-            </Link>
-            <Link to="/register">
-              <Button variant="outline">{t.welcome.signUp}</Button>
-            </Link>
-          </div>
+          {!isResolvingSession && (
+            <div className="welcome-cta">
+              {isAuthenticated ? (
+                <Link to={ROLE_HOME[role] ?? '/'}>
+                  <Button variant="primary">
+                    <UserCircle size={18} />
+                    {t.common.myProfile}
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="primary">{t.welcome.signIn}</Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button variant="outline">{t.welcome.signUp}</Button>
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </main>
 
