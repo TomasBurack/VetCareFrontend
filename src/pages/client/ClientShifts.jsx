@@ -84,6 +84,12 @@ export function ClientShifts() {
                   <TruncatedText text={shift.description} title={t.shifts.reason} limit={30} /> ·{' '}
                   {formatShiftDate(shift.dateShift)} · {shift.veterinarianName}
                 </div>
+                {shift.observations && (
+                  <div style={{ fontSize: '.8rem', color: 'var(--ink)', marginTop: '.4rem' }}>
+                    <strong>{t.shifts.observationsShort}:</strong>{' '}
+                    <TruncatedText text={shift.observations} title={t.shifts.observations} limit={60} />
+                  </div>
+                )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
                 <Badge status={status} />

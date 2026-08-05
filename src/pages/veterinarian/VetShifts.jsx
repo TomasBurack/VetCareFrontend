@@ -122,15 +122,17 @@ export function VetShifts() {
                   ))}
                 </select>
               )}
-              <button
-                className="btn-text"
-                onClick={() => {
-                  setObservationsError(null);
-                  setEditingObservations(shift);
-                }}
-              >
-                {shift.observations ? t.vetShifts.editObservations : t.vetShifts.addObservations}
-              </button>
+              {shift.status?.toLowerCase() === 'served' && (
+                <button
+                  className="btn-text"
+                  onClick={() => {
+                    setObservationsError(null);
+                    setEditingObservations(shift);
+                  }}
+                >
+                  {shift.observations ? t.vetShifts.editObservations : t.vetShifts.addObservations}
+                </button>
+              )}
             </div>
           )}
         />
