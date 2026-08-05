@@ -207,6 +207,11 @@ export function AdminPets() {
               render: (p) => t.pets.types[p.typePet] ?? p.typePet,
               sortKey: 'typePet',
               sortValue: (p) => t.pets.types[p.typePet] ?? p.typePet,
+              filterVariant: 'select',
+              filterOptions: PET_TYPE_VALUES.map((value) => ({
+                value: t.pets.types[value],
+                label: t.pets.types[value],
+              })),
             },
             { label: t.pets.breed, render: (p) => p.breed, sortKey: 'breed' },
             { label: t.pets.ageShort, render: (p) => `${p.age} ${t.common.years}` },
