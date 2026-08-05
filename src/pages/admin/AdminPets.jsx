@@ -19,8 +19,6 @@ export function AdminPets() {
   const toast = useToast();
   const { t } = useLanguage();
   const [pets, setPets] = useState([]);
-  const [typeFilter, setTypeFilter] = useState('');
-  const [breedFilter, setBreedFilter] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [editingId, setEditingId] = useState(null);
@@ -127,16 +125,6 @@ export function AdminPets() {
     }
   }
 
-  const availableBreeds = [...new Set(pets.map((p) => p.breed).filter(Boolean))].sort((a, b) =>
-    a.localeCompare(b, undefined, { sensitivity: 'base' }),
-  );
-
-  const filtered = pets.filter((p) => {
-    const matchesType = !typeFilter || p.typePet === typeFilter;
-    const matchesBreed = !breedFilter || p.breed === breedFilter;
-    return matchesType && matchesBreed;
-  });
-
   return (
     <>
       <h1 className="page-title">{editingId !== null ? t.adminPets.titleEdit : t.adminPets.title}</h1>
@@ -144,43 +132,13 @@ export function AdminPets() {
         {editingId !== null ? t.adminPets.subtitleEdit : t.adminPets.subtitle}
       </p>
       <ErrorBanner messages={errors} />
-      <div className="toolbar">
-        {editingId === null && (
-          <>
-            <select
-              className="f"
-              style={{ width: 'auto', margin: 0 }}
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-            >
-              <option value="">{t.adminPets.allTypes}</option>
-              {PET_TYPE_VALUES.map((value) => (
-                <option key={value} value={value}>
-                  {t.pets.types[value]}
-                </option>
-              ))}
-            </select>
-            <select
-              className="f"
-              style={{ width: 'auto', margin: 0 }}
-              value={breedFilter}
-              onChange={(e) => setBreedFilter(e.target.value)}
-            >
-              <option value="">{t.adminPets.allBreeds}</option>
-              {availableBreeds.map((breed) => (
-                <option key={breed} value={breed}>
-                  {breed}
-                </option>
-              ))}
-            </select>
-          </>
-        )}
-        {editingId !== null && (
+      {editingId !== null && (
+        <div className="toolbar">
           <Button variant="outline" onClick={closeForm}>
             {t.common.cancel}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {editingId !== null ? (
         <FormCard maxWidth={520}>
@@ -240,7 +198,7 @@ export function AdminPets() {
         </FormCard>
       ) : (
         <EntityTable
-          rows={filtered}
+          rows={pets}
           keyField="idPet"
           columns={[
             { label: t.common.name, render: (p) => p.name },
