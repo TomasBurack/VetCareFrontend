@@ -37,6 +37,12 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
       if (col.filterVariant === 'select') {
         def.filterFn = 'equals';
       }
+      if (col.filterMode === 'startsWith') {
+        def.filterFn = (row, columnId, filterValue) =>
+          String(row.getValue(columnId) ?? '')
+            .toLowerCase()
+            .startsWith(String(filterValue).toLowerCase());
+      }
 
       return def;
     });

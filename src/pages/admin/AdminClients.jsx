@@ -213,8 +213,8 @@ export function AdminClients() {
           rows={clients}
           columns={[
             { label: t.common.name, render: (c) => `${c.firstName} ${c.lastName}` },
-            { label: t.common.dni, render: (c) => c.dni },
-            { label: t.common.email, render: (c) => c.email },
+            { label: t.common.dni, render: (c) => c.dni, sortKey: 'dni', filterMode: 'startsWith' },
+            { label: t.common.email, render: (c) => c.email, sortKey: 'email', filterMode: 'startsWith' },
           ]}
           renderActions={(client) => (
             <div className="actions">
