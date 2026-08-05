@@ -7,6 +7,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { TableColumnFilter } from './TableColumnFilter';
+import { TableSearchBar } from './TableSearchBar';
 import { useLanguage } from '../i18n/useLanguage';
 
 export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
@@ -14,6 +15,7 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
   const [sorting, setSorting] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const columnDefs = useMemo(() => {
     const defs = columns.map((col, index) => ({
@@ -59,14 +61,12 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
 
   return (
     <div className="shifts-table-wrap">
-      <div className="table-search-bar">
-        <input
-          className="search"
-          placeholder={t.common.search}
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-        />
-      </div>
+      <TableSearchBar
+        value={globalFilter}
+        onChange={setGlobalFilter}
+        filtersOpen={filtersOpen}
+        onToggleFilters={() => setFiltersOpen((prev) => !prev)}
+      />
       <div className="table-scroll">
         <table className="shifts-table">
           <thead>
@@ -89,13 +89,15 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
                 );
               })}
             </tr>
-            <tr className="filter-row">
-              {headerGroup.headers.map((header) => (
-                <th key={`filter-${header.id}`}>
-                  <TableColumnFilter column={header.column} />
-                </th>
-              ))}
-            </tr>
+            {filtersOpen && (
+              <tr className="filter-row">
+                {headerGroup.headers.map((header) => (
+                  <th key={`filter-${header.id}`}>
+                    <TableColumnFilter column={header.column} />
+                  </th>
+                ))}
+              </tr>
+            )}
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (

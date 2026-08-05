@@ -21,6 +21,7 @@ export const es = {
     loading: 'Cargando…',
     search: 'Buscar',
     all: 'Todos',
+    columnFilters: 'Filtros por columna',
     logout: 'Cerrar sesión',
     myProfile: 'Mi perfil',
     passwordHintNew: 'Se le pedirá cambiarla en el primer ingreso',

@@ -9,6 +9,7 @@ import {
 import { Badge } from './Badge';
 import { TruncatedText } from './TruncatedText';
 import { TableColumnFilter } from './TableColumnFilter';
+import { TableSearchBar } from './TableSearchBar';
 import { formatShiftDate } from '../utils/date';
 import { useLanguage } from '../i18n/useLanguage';
 
@@ -19,6 +20,7 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, r
   const [sorting, setSorting] = useState([{ id: 'date', desc: true }]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const columns = useMemo(() => {
     const cols = [
@@ -117,14 +119,12 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, r
 
   return (
     <div className="shifts-table-wrap">
-      <div className="table-search-bar">
-        <input
-          className="search"
-          placeholder={t.common.search}
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-        />
-      </div>
+      <TableSearchBar
+        value={globalFilter}
+        onChange={setGlobalFilter}
+        filtersOpen={filtersOpen}
+        onToggleFilters={() => setFiltersOpen((prev) => !prev)}
+      />
       <div className="table-scroll">
         <table className="shifts-table">
           <thead>
@@ -147,13 +147,15 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, r
                 );
               })}
             </tr>
-            <tr className="filter-row">
-              {headerGroup.headers.map((header) => (
-                <th key={`filter-${header.id}`}>
-                  <TableColumnFilter column={header.column} />
-                </th>
-              ))}
-            </tr>
+            {filtersOpen && (
+              <tr className="filter-row">
+                {headerGroup.headers.map((header) => (
+                  <th key={`filter-${header.id}`}>
+                    <TableColumnFilter column={header.column} />
+                  </th>
+                ))}
+              </tr>
+            )}
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
