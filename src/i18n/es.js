@@ -124,6 +124,8 @@ export const es = {
     saveError: 'No se pudo guardar la mascota.',
     deleted: 'Mascota eliminada correctamente.',
     deleteError: 'No se pudo eliminar la mascota.',
+    allTypes: 'Todos los tipos',
+    allBreeds: 'Todas las razas',
   },
 
   // ---------- vista: clientes (admin) ----------
@@ -172,6 +174,7 @@ export const es = {
     deleteError: 'No se pudo eliminar el veterinario.',
     deleteTitle: (name) => `Eliminar a ${name}`,
     deleteDescription: 'Esta acción elimina la cuenta del veterinario. No se puede deshacer.',
+    allSpecialities: 'Todas las especialidades',
   },
 
   // ---------- vista: formulario de veterinario (admin) ----------
@@ -333,6 +336,7 @@ export const es = {
       served: 'Atendidos',
       canceled: 'Cancelados',
     },
+    viewObservations: 'Ver observaciones',
   },
 
   // ---------- perfil ----------

@@ -80,16 +80,28 @@ export function ClientShifts() {
             <div className="ficha-pad" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <div>
                 <div style={{ fontWeight: 600, fontSize: '.95rem' }}>{shift.petName}</div>
-                <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)', marginTop: '.2rem' }}>
-                  <TruncatedText text={shift.description} title={t.shifts.reason} limit={30} /> ·{' '}
-                  {formatShiftDate(shift.dateShift)} · {shift.veterinarianName}
-                </div>
-                {shift.observations && (
-                  <div style={{ fontSize: '.8rem', color: 'var(--ink)', marginTop: '.4rem' }}>
-                    <strong>{t.shifts.observationsShort}:</strong>{' '}
-                    <TruncatedText text={shift.observations} title={t.shifts.observations} limit={60} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.2rem', marginTop: '.4rem', fontSize: '.8rem' }}>
+                  <div>
+                    <strong>{t.shifts.reasonShort}:</strong>{' '}
+                    <span style={{ color: 'var(--sage-muted)' }}>
+                      <TruncatedText text={shift.description} title={t.shifts.reason} limit={30} />
+                    </span>
                   </div>
-                )}
+                  <div>
+                    <strong>{t.shifts.date}:</strong>{' '}
+                    <span style={{ color: 'var(--sage-muted)' }}>{formatShiftDate(shift.dateShift)}</span>
+                  </div>
+                  <div>
+                    <strong>{t.shifts.veterinarian}:</strong>{' '}
+                    <span style={{ color: 'var(--sage-muted)' }}>{shift.veterinarianName}</span>
+                  </div>
+                  {shift.observations && (
+                    <div>
+                      <strong>{t.shifts.observationsShort}:</strong>{' '}
+                      <TruncatedText text={shift.observations} title={t.shifts.observations} limit={60} />
+                    </div>
+                  )}
+                </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
                 <Badge status={status} />

@@ -124,6 +124,8 @@ export const en = {
     saveError: 'The pet could not be saved.',
     deleted: 'Pet deleted successfully.',
     deleteError: 'The pet could not be deleted.',
+    allTypes: 'All types',
+    allBreeds: 'All breeds',
   },
 
   // ---------- view: clients (admin) ----------
@@ -172,6 +174,7 @@ export const en = {
     deleteError: 'The veterinarian could not be deleted.',
     deleteTitle: (name) => `Delete ${name}`,
     deleteDescription: 'This action deletes the veterinarian account. It cannot be undone.',
+    allSpecialities: 'All specialities',
   },
 
   // ---------- view: veterinarian form (admin) ----------
@@ -333,6 +336,7 @@ export const en = {
       served: 'Attended',
       canceled: 'Canceled',
     },
+    viewObservations: 'View observations',
   },
 
   // ---------- profile ----------

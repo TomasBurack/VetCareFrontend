@@ -7,6 +7,26 @@ import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
 
+function ViewObservationsOverlay({ observations, onClose, title, closeLabel }) {
+  return (
+    <div className="overlay-backdrop" onClick={onClose}>
+      <div className="modal-mock" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <span className="t">{title}</span>
+        </div>
+        <div className="modal-body" style={{ color: 'var(--ink)', whiteSpace: 'pre-wrap' }}>
+          {observations}
+        </div>
+        <div className="modal-foot">
+          <button className="btn btn-outline" onClick={onClose}>
+            {closeLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const TAB_KEYS = ['all', 'pendant', 'served', 'canceled'];
 
 const STATUS_OPTIONS = ['Served', 'Canceled'];
@@ -19,6 +39,7 @@ export function AdminShifts() {
   const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
+  const [viewingObservations, setViewingObservations] = useState(null);
 
   async function load() {
     try {
@@ -92,6 +113,15 @@ export function AdminShifts() {
       <ShiftsTable
         shifts={filtered}
         showVeterinarian
+        renderObservations={(shift) =>
+          shift.observations ? (
+            <button className="btn-text" onClick={() => setViewingObservations(shift)}>
+              {t.adminShifts.viewObservations}
+            </button>
+          ) : (
+            <span style={{ color: 'var(--sage-muted)' }}>{t.shifts.noObservations}</span>
+          )
+        }
         renderActions={(shift) =>
           shift.status?.toLowerCase() === 'pendant' && (
             <div style={{ display: 'flex', gap: '.4rem', alignItems: 'center' }}>
@@ -122,6 +152,15 @@ export function AdminShifts() {
           description={t.adminShifts.deleteDescription}
           onCancel={() => setPendingDelete(null)}
           onConfirm={confirmDelete}
+        />
+      )}
+
+      {viewingObservations && (
+        <ViewObservationsOverlay
+          title={t.shifts.observations}
+          observations={viewingObservations.observations}
+          onClose={() => setViewingObservations(null)}
+          closeLabel={t.common.close}
         />
       )}
     </>

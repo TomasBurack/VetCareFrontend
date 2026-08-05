@@ -20,6 +20,8 @@ export function AdminPets() {
   const { t } = useLanguage();
   const [pets, setPets] = useState([]);
   const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [breedFilter, setBreedFilter] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [editingId, setEditingId] = useState(null);
@@ -126,13 +128,19 @@ export function AdminPets() {
     }
   }
 
+  const availableBreeds = [...new Set(pets.map((p) => p.breed).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: 'base' }),
+  );
+
   const filtered = pets.filter((p) => {
     const q = search.toLowerCase();
-    return (
+    const matchesSearch =
       p.name?.toLowerCase().includes(q) ||
       p.ownerName?.toLowerCase().includes(q) ||
-      p.ownerEmail?.toLowerCase().includes(q)
-    );
+      p.ownerEmail?.toLowerCase().includes(q);
+    const matchesType = !typeFilter || p.typePet === typeFilter;
+    const matchesBreed = !breedFilter || p.breed === breedFilter;
+    return matchesSearch && matchesType && matchesBreed;
   });
 
   return (
@@ -144,12 +152,40 @@ export function AdminPets() {
       <ErrorBanner messages={errors} />
       <div className="toolbar">
         {editingId === null && (
-          <input
-            className="search"
-            placeholder={t.adminPets.searchPlaceholder}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <>
+            <input
+              className="search"
+              placeholder={t.adminPets.searchPlaceholder}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <select
+              className="f"
+              style={{ width: 'auto', margin: 0 }}
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+            >
+              <option value="">{t.adminPets.allTypes}</option>
+              {PET_TYPE_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {t.pets.types[value]}
+                </option>
+              ))}
+            </select>
+            <select
+              className="f"
+              style={{ width: 'auto', margin: 0 }}
+              value={breedFilter}
+              onChange={(e) => setBreedFilter(e.target.value)}
+            >
+              <option value="">{t.adminPets.allBreeds}</option>
+              {availableBreeds.map((breed) => (
+                <option key={breed} value={breed}>
+                  {breed}
+                </option>
+              ))}
+            </select>
+          </>
         )}
         {editingId !== null && (
           <Button variant="outline" onClick={closeForm}>
@@ -220,8 +256,13 @@ export function AdminPets() {
           keyField="idPet"
           columns={[
             { label: t.common.name, render: (p) => p.name },
-            { label: t.pets.type, render: (p) => t.pets.types[p.typePet] ?? p.typePet },
-            { label: t.pets.breed, render: (p) => p.breed },
+            {
+              label: t.pets.type,
+              render: (p) => t.pets.types[p.typePet] ?? p.typePet,
+              sortKey: 'typePet',
+              sortValue: (p) => t.pets.types[p.typePet] ?? p.typePet,
+            },
+            { label: t.pets.breed, render: (p) => p.breed, sortKey: 'breed' },
             { label: t.pets.ageShort, render: (p) => `${p.age} ${t.common.years}` },
             { label: t.pets.owner, render: (p) => p.ownerName },
             { label: t.pets.ownerEmail, render: (p) => p.ownerEmail },

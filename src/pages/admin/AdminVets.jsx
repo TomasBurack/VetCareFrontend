@@ -9,11 +9,14 @@ import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
 
+const SPECIALITY_VALUES = ['Clinical', 'Guard', 'Surgery', 'Dermatology', 'Cardiology', 'Traumatology'];
+
 export function AdminVets() {
   const toast = useToast();
   const { t } = useLanguage();
   const [vets, setVets] = useState([]);
   const [search, setSearch] = useState('');
+  const [speciality, setSpeciality] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
 
@@ -47,7 +50,10 @@ export function AdminVets() {
 
   const filtered = vets.filter((v) => {
     const q = search.toLowerCase();
-    return `${v.firstName} ${v.lastName}`.toLowerCase().includes(q) || v.enrollment?.toLowerCase().includes(q);
+    const matchesSearch =
+      `${v.firstName} ${v.lastName}`.toLowerCase().includes(q) || v.enrollment?.toLowerCase().includes(q);
+    const matchesSpeciality = !speciality || v.speciality === speciality;
+    return matchesSearch && matchesSpeciality;
   });
 
   return (
@@ -62,6 +68,19 @@ export function AdminVets() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <select
+          className="f"
+          style={{ width: 'auto', margin: 0 }}
+          value={speciality}
+          onChange={(e) => setSpeciality(e.target.value)}
+        >
+          <option value="">{t.adminVets.allSpecialities}</option>
+          {SPECIALITY_VALUES.map((value) => (
+            <option key={value} value={value}>
+              {t.specialities[value]}
+            </option>
+          ))}
+        </select>
         <Link to="/veterinarios/nuevo">
           <Button>{t.adminVets.new}</Button>
         </Link>
@@ -72,7 +91,12 @@ export function AdminVets() {
         columns={[
           { label: t.common.name, render: (v) => `${v.firstName} ${v.lastName}` },
           { label: t.adminVets.enrollment, render: (v) => v.enrollment },
-          { label: t.adminVets.speciality, render: (v) => t.specialities[v.speciality] ?? v.speciality },
+          {
+            label: t.adminVets.speciality,
+            render: (v) => t.specialities[v.speciality] ?? v.speciality,
+            sortKey: 'speciality',
+            sortValue: (v) => t.specialities[v.speciality] ?? v.speciality,
+          },
         ]}
         renderActions={(vet) => (
           <div className="actions">

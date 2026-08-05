@@ -4,7 +4,7 @@ import { TruncatedText } from './TruncatedText';
 import { formatShiftDate } from '../utils/date';
 import { useLanguage } from '../i18n/useLanguage';
 
-export function ShiftsTable({ shifts, showVeterinarian = false, renderActions }) {
+export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, renderObservations }) {
   const [dateSort, setDateSort] = useState('desc');
   const { t } = useLanguage();
 
@@ -48,7 +48,9 @@ export function ShiftsTable({ shifts, showVeterinarian = false, renderActions })
                   <Badge status={status} />
                 </td>
                 <td data-label={t.shifts.observationsShort}>
-                  {shift.observations ? (
+                  {renderObservations ? (
+                    renderObservations(shift)
+                  ) : shift.observations ? (
                     <TruncatedText text={shift.observations} title={t.shifts.observations} />
                   ) : (
                     <span style={{ color: 'var(--sage-muted)' }}>{t.shifts.noObservations}</span>
