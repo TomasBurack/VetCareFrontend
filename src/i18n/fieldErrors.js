@@ -8,7 +8,7 @@ const FIELD_PATTERNS = [
   ['lastName', /^El apellido /],
   ['dni', /^El DNI /],
   ['phoneNumber', /^El teléfono /],
-  ['email', /^El email /],
+  ['email', /^(El email |El formato del email )/],
   ['password', /^La contraseña /],
 ];
 
