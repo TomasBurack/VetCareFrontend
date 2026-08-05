@@ -18,6 +18,8 @@ const PATTERNS = [
   [/^El apellido es obligatorio\.$/, () => 'Last name is required.'],
   [/^El apellido debe tener al menos 3 caracteres\.$/, () => 'Last name must be at least 3 characters long.'],
   [/^El apellido no puede superar los 15 caracteres\.$/, () => 'Last name cannot exceed 15 characters.'],
+  [/^El nombre solo puede contener letras\.$/, () => 'First name can only contain letters.'],
+  [/^El apellido solo puede contener letras\.$/, () => 'Last name can only contain letters.'],
 
   // ---------- validaciones: DNI ----------
   [/^El DNI es obligatorio\.$/, () => 'ID number is required.'],
@@ -53,6 +55,7 @@ const PATTERNS = [
   [/^El nombre de la mascota es obligatorio\.$/, () => "Pet's name is required."],
   [/^El nombre de la mascota debe tener al menos 3 caracteres\.$/, () => "Pet's name must be at least 3 characters long."],
   [/^El nombre de la mascota no puede superar los 20 caracteres\.$/, () => "Pet's name cannot exceed 20 characters."],
+  [/^El nombre de la mascota solo puede contener letras\.$/, () => "Pet's name can only contain letters."],
   [/^La edad de la mascota es obligatoria\.$/, () => "Pet's age is required."],
   [/^La edad de la mascota debe ser positiva\.$/, () => "Pet's age must be positive."],
   [/^La edad de la mascota no puede superar los 100 años\.$/, () => "Pet's age cannot exceed 100 years."],
@@ -80,6 +83,8 @@ const PATTERNS = [
   [/^El turno no pertenece al veterinario autenticado\.$/, () => 'The appointment does not belong to the authenticated veterinarian.'],
   [/^La mascota no pertenece al cliente autenticado\.$/, () => 'The pet does not belong to the authenticated client.'],
   [/^El veterinario ya tiene un turno el '(.+)'\.$/, (date) => `The veterinarian already has an appointment on '${date}'.`],
+  [/^La mascota ya tiene un turno el '(.+)'\.$/, (date) => `The pet already has an appointment on '${date}'.`],
+  [/^La fecha del turno no puede ser mayor a 1 año a futuro\.$/, () => 'The appointment date cannot be more than 1 year in the future.'],
   [/^Las observaciones son obligatorias\.$/, () => 'Observations are required.'],
   [/^Las observaciones no pueden superar los 1000 caracteres\.$/, () => 'Observations cannot exceed 1000 characters.'],
   [/^Solo se pueden agregar observaciones a los turnos con estado 'Served'\.$/, () => "Observations can only be added to appointments with status 'Attended'."],

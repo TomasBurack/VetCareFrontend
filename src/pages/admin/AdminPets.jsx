@@ -10,6 +10,7 @@ import { Button } from '../../components/Button';
 import { Combobox } from '../../components/Combobox';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
+import { translateBreed } from '../../i18n/breeds';
 
 const PET_TYPE_VALUES = ['Canine', 'Feline', 'Avian', 'Reptile'];
 
@@ -17,7 +18,7 @@ const EMPTY_FORM = { name: '', typePet: 'Canine', age: '', breed: '' };
 
 export function AdminPets() {
   const toast = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [pets, setPets] = useState([]);
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
@@ -179,6 +180,7 @@ export function AdminPets() {
                   value={form.breed}
                   onChange={(breed) => setForm((prev) => ({ ...prev, breed }))}
                   placeholder={t.pets.breedSearch}
+                  getLabel={language === 'es' ? translateBreed : undefined}
                 />
               </Field>
             ) : (
@@ -213,7 +215,12 @@ export function AdminPets() {
                 label: t.pets.types[value],
               })),
             },
-            { label: t.pets.breed, render: (p) => p.breed, sortKey: 'breed' },
+            {
+              label: t.pets.breed,
+              render: (p) => (language === 'es' ? translateBreed(p.breed) : p.breed),
+              sortKey: 'breed',
+              sortValue: (p) => (language === 'es' ? translateBreed(p.breed) : p.breed),
+            },
             { label: t.pets.ageShort, render: (p) => `${p.age} ${t.common.years}` },
             { label: t.pets.owner, render: (p) => p.ownerName },
             { label: t.pets.ownerEmail, render: (p) => p.ownerEmail },

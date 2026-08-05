@@ -9,6 +9,7 @@ import { EmptyState } from '../../components/EmptyState';
 import { ConfirmDeleteOverlay } from '../../components/ConfirmDeleteOverlay';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
+import { translateBreed } from '../../i18n/breeds';
 
 const TYPE_EMOJIS = {
   Canine: '🐾',
@@ -19,7 +20,7 @@ const TYPE_EMOJIS = {
 
 export function ClientPets() {
   const toast = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
@@ -94,7 +95,7 @@ export function ClientPets() {
                 {pet.name}
               </div>
               <div style={{ fontSize: '.8rem', color: 'var(--sage-muted)' }}>
-                {t.pets.types[pet.typePet] ?? pet.typePet} · {pet.breed}
+                {t.pets.types[pet.typePet] ?? pet.typePet} · {language === 'es' ? translateBreed(pet.breed) : pet.breed}
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '.72rem', marginTop: '.4rem', color: 'var(--sage-muted)' }}>
                 {pet.age} {t.common.years}

@@ -16,7 +16,7 @@ function formatDisplay(key) {
   return `${String(day).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
 }
 
-export function DatePicker({ value, onChange, min, placeholder }) {
+export function DatePicker({ value, onChange, min, max, placeholder }) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [viewDate, setViewDate] = useState(() => {
@@ -55,6 +55,7 @@ export function DatePicker({ value, onChange, min, placeholder }) {
   function selectDay(day) {
     const key = toDateKey(viewDate.year, viewDate.month, day);
     if (min && key < min) return;
+    if (max && key > max) return;
     onChange(key);
     setOpen(false);
   }
@@ -90,7 +91,7 @@ export function DatePicker({ value, onChange, min, placeholder }) {
             {cells.map((day, i) => {
               if (day === null) return <span key={`blank-${i}`} />;
               const key = toDateKey(viewDate.year, viewDate.month, day);
-              const disabled = min && key < min;
+              const disabled = (min && key < min) || (max && key > max);
               const selected = key === value;
               return (
                 <button

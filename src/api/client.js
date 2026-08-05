@@ -17,8 +17,12 @@ export function setUnauthorizedHandler(handler) {
 
 // Los mensajes genéricos se arman acá (fuera de React), así que leemos el
 // idioma activo directamente del storage que mantiene el LanguageProvider.
+function getActiveLanguage() {
+  return localStorage.getItem("vetcare-language") === "en" ? "en" : "es";
+}
+
 function getGenericMessages() {
-  const language = localStorage.getItem("vetcare-language") === "en" ? "en" : "es";
+  const language = getActiveLanguage();
   return language === "en"
     ? {
         401: "Unauthorized. Please sign in again.",
@@ -39,7 +43,7 @@ function getGenericMessages() {
 }
 
 async function request(method, path, { body } = {}) {
-  const headers = { "Content-Type": "application/json" };
+  const headers = { "Content-Type": "application/json", "Accept-Language": getActiveLanguage() };
 
   const response = await fetch(`${BASE_URL}${path}`, {
     method,

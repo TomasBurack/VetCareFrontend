@@ -9,6 +9,7 @@ import { Button } from '../../components/Button';
 import { Combobox } from '../../components/Combobox';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
+import { translateBreed } from '../../i18n/breeds';
 
 const PET_TYPE_VALUES = ['Canine', 'Feline', 'Avian', 'Reptile'];
 
@@ -19,7 +20,7 @@ export function ClientPetForm() {
   const isEditing = !!id;
   const navigate = useNavigate();
   const toast = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [breeds, setBreeds] = useState([]);
@@ -141,6 +142,7 @@ export function ClientPetForm() {
                 value={form.breed}
                 onChange={(breed) => setForm((prev) => ({ ...prev, breed }))}
                 placeholder={t.pets.breedSearch}
+                getLabel={language === 'es' ? translateBreed : undefined}
               />
             </Field>
           ) : (

@@ -11,14 +11,23 @@ import { DatePicker } from '../../components/DatePicker';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
 
-function vetOptionLabel(vet) {
-  return `${vet.firstName} ${vet.lastName} - ${vet.speciality}`;
+function vetOptionLabel(vet, t) {
+  const speciality = t.specialities[vet.speciality] ?? vet.speciality;
+  return `${vet.firstName} ${vet.lastName} - ${speciality}`;
 }
 
 function todayLocalDate() {
   const now = new Date();
   const offset = now.getTimezoneOffset() * 60000;
   return new Date(now - offset).toISOString().slice(0, 10);
+}
+
+function maxLocalDate() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const max = new Date(now - offset);
+  max.setFullYear(max.getFullYear() + 1);
+  return max.toISOString().slice(0, 10);
 }
 
 const SHIFT_START_HOUR = 8;
@@ -36,6 +45,7 @@ export function ClientShiftForm() {
   const toast = useToast();
   const { t } = useLanguage();
   const today = todayLocalDate();
+  const maxDate = maxLocalDate();
   const [pets, setPets] = useState([]);
   const [petId, setPetId] = useState('');
   const [date, setDate] = useState('');
@@ -64,8 +74,8 @@ export function ClientShiftForm() {
       .catch(() => setVeterinarians([]));
   }, []);
 
-  const vetOptions = veterinarians.map(vetOptionLabel);
-  const enrollment = veterinarians.find((vet) => vetOptionLabel(vet) === vetOption)?.enrollment ?? '';
+  const vetOptions = veterinarians.map((vet) => vetOptionLabel(vet, t));
+  const enrollment = veterinarians.find((vet) => vetOptionLabel(vet, t) === vetOption)?.enrollment ?? '';
 
   useEffect(() => {
     if (!enrollment || !date) {
@@ -140,7 +150,7 @@ export function ClientShiftForm() {
           </Field>
           <div className="grid cols-2">
             <Field label={t.shifts.date} required>
-              <DatePicker value={date} onChange={setDate} min={today} />
+              <DatePicker value={date} onChange={setDate} min={today} max={maxDate} />
             </Field>
             <Field
               label={t.shifts.time}

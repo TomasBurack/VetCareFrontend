@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-export function Combobox({ options, value, onChange, placeholder, disabled }) {
-  const [inputText, setInputText] = useState(value ?? '');
+export function Combobox({ options, value, onChange, placeholder, disabled, getLabel }) {
+  const label = getLabel ?? ((option) => option);
+  const [inputText, setInputText] = useState(label(value) ?? '');
   const [open, setOpen] = useState(false);
   const [lastSyncedValue, setLastSyncedValue] = useState(value);
   const containerRef = useRef(null);
@@ -9,16 +10,16 @@ export function Combobox({ options, value, onChange, placeholder, disabled }) {
 
   if (value !== lastSyncedValue) {
     setLastSyncedValue(value);
-    setInputText(value ?? '');
+    setInputText(label(value) ?? '');
   }
 
   function commitOrRevert() {
-    const match = options.find((o) => o.toLowerCase() === inputText.toLowerCase());
+    const match = options.find((o) => label(o).toLowerCase() === inputText.toLowerCase());
     if (match) {
-      setInputText(match);
+      setInputText(label(match));
       if (match !== value) onChange(match);
     } else {
-      setInputText(value ?? '');
+      setInputText(label(value) ?? '');
       if (value) onChange('');
     }
   }
@@ -38,12 +39,12 @@ export function Combobox({ options, value, onChange, placeholder, disabled }) {
   }, []);
 
   function selectOption(option) {
-    setInputText(option);
+    setInputText(label(option));
     onChange(option);
     setOpen(false);
   }
 
-  const filtered = options.filter((o) => o.toLowerCase().includes(inputText.toLowerCase()));
+  const filtered = options.filter((o) => label(o).toLowerCase().includes(inputText.toLowerCase()));
 
   return (
     <div className="combobox" ref={containerRef}>
@@ -78,7 +79,7 @@ export function Combobox({ options, value, onChange, placeholder, disabled }) {
         <ul className="combobox-list">
           {filtered.map((option) => (
             <li key={option} role="option" aria-selected={option === value} onMouseDown={() => selectOption(option)}>
-              {option}
+              {label(option)}
             </li>
           ))}
         </ul>
