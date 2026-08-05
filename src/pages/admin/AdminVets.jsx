@@ -15,7 +15,6 @@ export function AdminVets() {
   const toast = useToast();
   const { t } = useLanguage();
   const [vets, setVets] = useState([]);
-  const [search, setSearch] = useState('');
   const [speciality, setSpeciality] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
@@ -48,13 +47,7 @@ export function AdminVets() {
     }
   }
 
-  const filtered = vets.filter((v) => {
-    const q = search.toLowerCase();
-    const matchesSearch =
-      `${v.firstName} ${v.lastName}`.toLowerCase().includes(q) || v.enrollment?.toLowerCase().includes(q);
-    const matchesSpeciality = !speciality || v.speciality === speciality;
-    return matchesSearch && matchesSpeciality;
-  });
+  const filtered = vets.filter((v) => !speciality || v.speciality === speciality);
 
   return (
     <>
@@ -62,12 +55,6 @@ export function AdminVets() {
       <p className="page-sub">{t.adminVets.subtitle}</p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
-        <input
-          className="search"
-          placeholder={t.adminVets.searchPlaceholder}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
         <select
           className="f"
           style={{ width: 'auto', margin: 0 }}

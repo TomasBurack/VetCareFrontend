@@ -1,67 +1,154 @@
 import { useMemo, useState } from 'react';
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import { Badge } from './Badge';
 import { TruncatedText } from './TruncatedText';
 import { formatShiftDate } from '../utils/date';
 import { useLanguage } from '../i18n/useLanguage';
 
 export function ShiftsTable({ shifts, showVeterinarian = false, renderActions, renderObservations }) {
-  const [dateSort, setDateSort] = useState('desc');
   const { t } = useLanguage();
+  const [sorting, setSorting] = useState([{ id: 'date', desc: true }]);
+  const [globalFilter, setGlobalFilter] = useState('');
 
-  const sortedShifts = useMemo(() => {
-    const factor = dateSort === 'asc' ? 1 : -1;
-    return [...shifts].sort((a, b) => factor * (new Date(a.dateShift) - new Date(b.dateShift)));
-  }, [shifts, dateSort]);
+  const columns = useMemo(() => {
+    const cols = [
+      {
+        id: 'pet',
+        header: t.shifts.pet,
+        accessorFn: (shift) => shift.petName ?? '',
+        enableSorting: false,
+        cell: ({ getValue }) => getValue(),
+      },
+      {
+        id: 'reason',
+        header: t.shifts.reasonShort,
+        accessorFn: (shift) => shift.description ?? '',
+        enableSorting: false,
+        cell: ({ getValue }) => <TruncatedText text={getValue()} title={t.shifts.reason} />,
+      },
+    ];
 
-  function toggleDateSort() {
-    setDateSort((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-  }
+    if (showVeterinarian) {
+      cols.push({
+        id: 'veterinarian',
+        header: t.shifts.veterinarian,
+        accessorFn: (shift) => shift.veterinarianName ?? '',
+        enableSorting: false,
+        cell: ({ getValue }) => getValue(),
+      });
+    }
+
+    cols.push(
+      {
+        id: 'date',
+        header: t.shifts.date,
+        accessorFn: (shift) => shift.dateShift,
+        sortingFn: (a, b) => new Date(a.getValue('date')) - new Date(b.getValue('date')),
+        cell: ({ getValue }) => formatShiftDate(getValue()),
+      },
+      {
+        id: 'status',
+        header: t.shifts.status,
+        accessorFn: (shift) => t.shifts.statuses[shift.status?.toLowerCase()] ?? shift.status,
+        enableSorting: false,
+        cell: ({ row }) => <Badge status={row.original.status?.toLowerCase()} />,
+      },
+      {
+        id: 'observations',
+        header: t.shifts.observationsShort,
+        accessorFn: (shift) => shift.observations ?? '',
+        enableSorting: false,
+        enableGlobalFilter: !renderObservations,
+        cell: ({ row }) => {
+          const shift = row.original;
+          if (renderObservations) return renderObservations(shift);
+          if (shift.observations) {
+            return <TruncatedText text={shift.observations} title={t.shifts.observations} />;
+          }
+          return <span style={{ color: 'var(--sage-muted)' }}>{t.shifts.noObservations}</span>;
+        },
+      },
+    );
+
+    if (renderActions) {
+      cols.push({
+        id: 'actions',
+        header: t.common.actions,
+        enableSorting: false,
+        enableGlobalFilter: false,
+        cell: ({ row }) => renderActions(row.original),
+      });
+    }
+
+    return cols;
+  }, [t, showVeterinarian, renderActions, renderObservations]);
+
+  const table = useReactTable({
+    data: shifts,
+    columns,
+    state: { sorting, globalFilter },
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    getRowId: (shift) => shift.id,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+  });
 
   return (
     <div className="shifts-table-wrap">
-      <table className="shifts-table">
-        <thead>
-          <tr>
-            <th>{t.shifts.pet}</th>
-            <th>{t.shifts.reasonShort}</th>
-            {showVeterinarian && <th>{t.shifts.veterinarian}</th>}
-            <th className="sortable" onClick={toggleDateSort}>
-              {t.shifts.date} <span className="sort-arrow">{dateSort === 'asc' ? '↑' : '↓'}</span>
-            </th>
-            <th>{t.shifts.status}</th>
-            <th>{t.shifts.observationsShort}</th>
-            {renderActions && <th>{t.common.actions}</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {sortedShifts.map((shift) => {
-            const status = shift.status?.toLowerCase();
-            return (
-              <tr key={shift.id}>
-                <td data-label={t.shifts.pet}>{shift.petName}</td>
-                <td data-label={t.shifts.reasonShort}>
-                  <TruncatedText text={shift.description} title={t.shifts.reason} />
-                </td>
-                {showVeterinarian && <td data-label={t.shifts.veterinarian}>{shift.veterinarianName}</td>}
-                <td data-label={t.shifts.date}>{formatShiftDate(shift.dateShift)}</td>
-                <td data-label={t.shifts.status}>
-                  <Badge status={status} />
-                </td>
-                <td data-label={t.shifts.observationsShort}>
-                  {renderObservations ? (
-                    renderObservations(shift)
-                  ) : shift.observations ? (
-                    <TruncatedText text={shift.observations} title={t.shifts.observations} />
-                  ) : (
-                    <span style={{ color: 'var(--sage-muted)' }}>{t.shifts.noObservations}</span>
-                  )}
-                </td>
-                {renderActions && <td data-label={t.common.actions}>{renderActions(shift)}</td>}
+      <div className="table-search-bar">
+        <input
+          className="search"
+          placeholder={t.common.search}
+          value={globalFilter}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+        />
+      </div>
+      <div className="table-scroll">
+        <table className="shifts-table">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  const sortable = header.column.getCanSort();
+                  return (
+                    <th
+                      key={header.id}
+                      className={sortable ? 'sortable' : undefined}
+                      onClick={sortable ? header.column.getToggleSortingHandler() : undefined}
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {sortable && (
+                        <span className="sort-arrow">
+                          {header.column.getIsSorted() === 'asc' ? '↑' : header.column.getIsSorted() === 'desc' ? '↓' : ''}
+                        </span>
+                      )}
+                    </th>
+                  );
+                })}
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} data-label={cell.column.columnDef.header}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

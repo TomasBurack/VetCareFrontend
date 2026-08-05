@@ -17,7 +17,6 @@ export function AdminClients() {
   const toast = useToast();
   const { t } = useLanguage();
   const [clients, setClients] = useState([]);
-  const [search, setSearch] = useState('');
   const [errors, setErrors] = useState([]);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [creating, setCreating] = useState(false);
@@ -121,15 +120,6 @@ export function AdminClients() {
     }
   }
 
-  const filtered = clients.filter((c) => {
-    const q = search.toLowerCase();
-    return (
-      `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
-      c.dni?.toLowerCase().includes(q) ||
-      c.email?.toLowerCase().includes(q)
-    );
-  });
-
   return (
     <>
       <h1 className="page-title">
@@ -148,14 +138,7 @@ export function AdminClients() {
       </p>
       <ErrorBanner messages={errors} />
       <div className="toolbar">
-        {!isFormOpen && (
-          <input
-            className="search"
-            placeholder={t.adminClients.searchPlaceholder}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        )}
+        <div />
         {isFormOpen ? (
           <Button variant="outline" onClick={closeForm}>
             {t.common.cancel}
@@ -227,7 +210,7 @@ export function AdminClients() {
         </FormCard>
       ) : (
         <EntityTable
-          rows={filtered}
+          rows={clients}
           columns={[
             { label: t.common.name, render: (c) => `${c.firstName} ${c.lastName}` },
             { label: t.common.dni, render: (c) => c.dni },
