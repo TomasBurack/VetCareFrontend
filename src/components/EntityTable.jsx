@@ -6,12 +6,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { TableColumnFilter } from './TableColumnFilter';
 import { useLanguage } from '../i18n/useLanguage';
 
 export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
   const { t } = useLanguage();
   const [sorting, setSorting] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [columnFilters, setColumnFilters] = useState([]);
 
   const columnDefs = useMemo(() => {
     const defs = columns.map((col, index) => ({
@@ -32,6 +34,7 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
         header: t.common.actions,
         enableSorting: false,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
         cell: ({ row }) => renderActions(row.original),
       });
     }
@@ -42,14 +45,17 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
   const table = useReactTable({
     data: rows,
     columns: columnDefs,
-    state: { sorting, globalFilter },
+    state: { sorting, globalFilter, columnFilters },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: setColumnFilters,
     getRowId: (row) => row[keyField],
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
+
+  const headerGroup = table.getHeaderGroups()[0];
 
   return (
     <div className="shifts-table-wrap">
@@ -64,27 +70,32 @@ export function EntityTable({ rows, keyField = 'id', columns, renderActions }) {
       <div className="table-scroll">
         <table className="shifts-table">
           <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  const sortable = header.column.getCanSort();
-                  return (
-                    <th
-                      key={header.id}
-                      className={sortable ? 'sortable' : undefined}
-                      onClick={sortable ? header.column.getToggleSortingHandler() : undefined}
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {sortable && (
-                        <span className="sort-arrow">
-                          {header.column.getIsSorted() === 'asc' ? '↑' : header.column.getIsSorted() === 'desc' ? '↓' : ''}
-                        </span>
-                      )}
-                    </th>
-                  );
-                })}
-              </tr>
-            ))}
+            <tr>
+              {headerGroup.headers.map((header) => {
+                const sortable = header.column.getCanSort();
+                return (
+                  <th
+                    key={header.id}
+                    className={sortable ? 'sortable' : undefined}
+                    onClick={sortable ? header.column.getToggleSortingHandler() : undefined}
+                  >
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {sortable && (
+                      <span className="sort-arrow">
+                        {header.column.getIsSorted() === 'asc' ? '↑' : header.column.getIsSorted() === 'desc' ? '↓' : ''}
+                      </span>
+                    )}
+                  </th>
+                );
+              })}
+            </tr>
+            <tr className="filter-row">
+              {headerGroup.headers.map((header) => (
+                <th key={`filter-${header.id}`}>
+                  <TableColumnFilter column={header.column} />
+                </th>
+              ))}
+            </tr>
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (

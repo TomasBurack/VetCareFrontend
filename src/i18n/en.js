@@ -20,6 +20,7 @@ export const en = {
     years: 'years old',
     loading: 'Loading…',
     search: 'Search',
+    all: 'All',
     logout: 'Sign out',
     myProfile: 'My profile',
     passwordHintNew: 'They will be asked to change it on first sign-in',

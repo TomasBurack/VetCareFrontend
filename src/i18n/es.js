@@ -20,6 +20,7 @@ export const es = {
     years: 'años',
     loading: 'Cargando…',
     search: 'Buscar',
+    all: 'Todos',
     logout: 'Cerrar sesión',
     myProfile: 'Mi perfil',
     passwordHintNew: 'Se le pedirá cambiarla en el primer ingreso',
