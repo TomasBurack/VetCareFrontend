@@ -14,6 +14,14 @@ import { translateBreed } from '../../i18n/breeds';
 
 const PET_TYPE_VALUES = ['Canine', 'Feline', 'Avian', 'Reptile'];
 
+const AGE_LIMITS = { Canine: 30, Feline: 35, Avian: 100, Reptile: 100 };
+const AGE_MAX_MESSAGE_KEY = {
+  Canine: 'ageMaxCanine',
+  Feline: 'ageMaxFeline',
+  Avian: 'ageMaxAvian',
+  Reptile: 'ageMaxReptile',
+};
+
 const EMPTY_FORM = { name: '', typePet: 'Canine', age: '', breed: '' };
 
 export function AdminPets() {
@@ -91,8 +99,13 @@ export function AdminPets() {
     setErrors([]);
 
     const age = Number(form.age);
-    if (!Number.isInteger(age) || age < 0 || age > 100) {
+    if (!Number.isInteger(age) || age < 0) {
       setErrors([t.pets.ageInvalid]);
+      return;
+    }
+    const maxAge = AGE_LIMITS[form.typePet];
+    if (age > maxAge) {
+      setErrors([t.pets[AGE_MAX_MESSAGE_KEY[form.typePet]]]);
       return;
     }
 
@@ -166,7 +179,7 @@ export function AdminPets() {
                 type="number"
                 required
                 min="0"
-                max="100"
+                max={AGE_LIMITS[form.typePet]}
                 placeholder={t.pets.agePlaceholder}
                 value={form.age}
                 onChange={update('age')}
