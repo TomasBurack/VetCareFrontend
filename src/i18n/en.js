@@ -76,7 +76,11 @@ export const en = {
     breedPlaceholder: 'e.g. Mixed breed',
     namePlaceholder: 'e.g. Simon',
     agePlaceholder: '3',
-    ageInvalid: 'Age must be a whole number between 0 and 100.',
+    ageInvalid: 'Age must be a positive whole number.',
+    ageMaxCanine: "A dog's age cannot exceed 30 years.",
+    ageMaxFeline: "A cat's age cannot exceed 35 years.",
+    ageMaxAvian: "A bird's age cannot exceed 100 years.",
+    ageMaxReptile: "A reptile's age cannot exceed 100 years.",
     deleteDescription:
       'This action deletes the pet and its associated appointment history. It cannot be undone.',
     deleteTitle: (name) => `Delete ${name}`,
