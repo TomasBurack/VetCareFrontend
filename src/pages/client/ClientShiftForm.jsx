@@ -104,6 +104,10 @@ export function ClientShiftForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors([]);
+    if (!date) {
+      setErrors([t.clientShiftForm.dateRequired]);
+      return;
+    }
     const dateShift = date && time ? `${date}T${time}:00-03:00` : null;
     if (dateShift && new Date(dateShift) < new Date()) {
       setErrors([t.clientShiftForm.pastDate]);

@@ -284,6 +284,7 @@ export const es = {
     timeHintWithVet: 'Los horarios ocupados de ese veterinario aparecen deshabilitados.',
     timeHintNoVet: 'Elegí primero un veterinario para ver sus horarios disponibles.',
     timeBusySuffix: ' (ocupado)',
+    dateRequired: 'Debe seleccionar una fecha.',
     pastDate: 'No se puede solicitar un turno en una fecha u hora pasada.',
     sending: 'Enviando…',
     submitConfirm: 'Confirmar solicitud',
