@@ -104,6 +104,10 @@ export function ClientShiftForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors([]);
+    if (!enrollment) {
+      setErrors([t.clientShiftForm.vetRequired]);
+      return;
+    }
     if (!date) {
       setErrors([t.clientShiftForm.dateRequired]);
       return;

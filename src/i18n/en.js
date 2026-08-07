@@ -284,6 +284,7 @@ export const en = {
     timeHintWithVet: "That veterinarian's busy time slots appear disabled.",
     timeHintNoVet: 'Choose a veterinarian first to see their available time slots.',
     timeBusySuffix: ' (busy)',
+    vetRequired: 'You must choose a veterinarian.',
     dateRequired: 'You must select a date.',
     pastDate: 'You cannot book an appointment on a past date or time.',
     sending: 'Sending…',
