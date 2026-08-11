@@ -541,6 +541,32 @@ export const en = {
     checkFields: 'Please review the following:',
   },
 
+  // ---------- error pages (401/403/404/500) ----------
+  errorPages: {
+    backHome: 'Back to home',
+    goBack: 'Go back',
+    401: {
+      title: 'Unauthorized',
+      subtitle: 'Your session expired or you are not signed in. Please sign in again to continue.',
+      action: 'Sign in',
+    },
+    403: {
+      title: 'Access forbidden',
+      subtitle: "You don't have permission to view this page with your current role.",
+      action: 'Go to my profile',
+    },
+    404: {
+      title: 'Page not found',
+      subtitle: "The page you're looking for doesn't exist or was moved.",
+      action: 'Back to home',
+    },
+    500: {
+      title: 'Internal server error',
+      subtitle: "Something went wrong on our end. We're already on it, please try again in a few minutes.",
+      action: 'Retry',
+    },
+  },
+
   // ---------- language switcher ----------
   language: {
     label: 'Language',

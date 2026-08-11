@@ -26,11 +26,20 @@ import { AdminPets } from '../pages/admin/AdminPets';
 
 import { SysadminAdmins } from '../pages/sysadmin/SysadminAdmins';
 
+import { NotFound } from '../pages/errors/NotFound';
+import { Forbidden } from '../pages/errors/Forbidden';
+import { Unauthorized } from '../pages/errors/Unauthorized';
+import { ServerError } from '../pages/errors/ServerError';
+
 export const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
   { path: '/forgot-password', element: <ForgotPassword /> },
   { path: '/reset-password', element: <ResetPassword /> },
+
+  { path: '/401', element: <Unauthorized /> },
+  { path: '/403', element: <Forbidden /> },
+  { path: '/500', element: <ServerError /> },
 
   {
     element: <ProtectedRoute />,
@@ -82,5 +91,5 @@ export const router = createBrowserRouter([
   },
 
   { path: '/', element: <Welcome /> },
-  { path: '*', element: <Navigate to="/login" replace /> },
+  { path: '*', element: <NotFound /> },
 ]);

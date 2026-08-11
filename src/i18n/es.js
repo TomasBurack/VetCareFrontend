@@ -543,6 +543,32 @@ export const es = {
     checkFields: 'Revisá los siguientes datos:',
   },
 
+  // ---------- vistas de error (401/403/404/500) ----------
+  errorPages: {
+    backHome: 'Volver al inicio',
+    goBack: 'Volver atrás',
+    401: {
+      title: 'No autorizado',
+      subtitle: 'Tu sesión expiró o no iniciaste sesión. Ingresá nuevamente para continuar.',
+      action: 'Iniciar sesión',
+    },
+    403: {
+      title: 'Acceso prohibido',
+      subtitle: 'No tenés permisos para ver esta página con tu rol actual.',
+      action: 'Ir a mi perfil',
+    },
+    404: {
+      title: 'Página no encontrada',
+      subtitle: 'La página que buscás no existe o fue movida.',
+      action: 'Volver al inicio',
+    },
+    500: {
+      title: 'Error interno del servidor',
+      subtitle: 'Algo salió mal de nuestro lado. Ya estamos al tanto, intentá de nuevo en unos minutos.',
+      action: 'Reintentar',
+    },
+  },
+
   // ---------- selector de idioma ----------
   language: {
     label: 'Idioma',
