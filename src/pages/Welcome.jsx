@@ -41,7 +41,7 @@ export function Welcome() {
     <div className="welcome-wrap">
       <header className="welcome-header">
         <div className="auth-brand">
-          <span className="mark">V</span> VetCare
+          <img src="/logo.png" alt="VetCare" className="mark" /> VetCare
         </div>
         <div className="welcome-header-switches">
           <LanguageSwitch />

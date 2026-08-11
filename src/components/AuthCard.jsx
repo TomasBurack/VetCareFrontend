@@ -22,7 +22,7 @@ export function AuthCard({ title, subtitle, children }) {
       <div className="auth-card-outer">
         <div className="auth-card">
           <div className="auth-brand">
-            <span className="mark">V</span> VetCare
+            <img src="/logo.png" alt="VetCare" className="mark" /> VetCare
           </div>
           <div className="auth-title">{title}</div>
           {subtitle && <div className="auth-sub">{subtitle}</div>}

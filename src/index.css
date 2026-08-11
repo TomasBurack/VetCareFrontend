@@ -397,14 +397,8 @@ textarea.f.has-error {
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  background: var(--primary);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.1rem;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 .auth-title {
   font-family: var(--font-display);
@@ -632,6 +626,16 @@ textarea.f.has-error {
   font-weight: 700;
   font-size: 1.3rem;
   margin-bottom: 0.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sidebar .brand img {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 .sidebar .role-tag {
   font-family: var(--font-body);

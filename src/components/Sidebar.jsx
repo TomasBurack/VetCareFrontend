@@ -53,7 +53,9 @@ export function Sidebar() {
 
   return (
     <div className="sidebar">
-      <div className="brand">VetCare</div>
+      <div className="brand">
+        <img src="/logo.png" alt="VetCare" /> VetCare
+      </div>
       <span className="role-tag">{nav.tag(t)}</span>
       <ThemeSwitch />
       <LanguageSwitch className="sidebar-lang" />
