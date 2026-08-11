@@ -15,12 +15,12 @@ function EyeIcon({ open }) {
   );
 }
 
-export function Field({ label, required, hint, errors, type, children, ...props }) {
+export function Field({ label, required, hint, errors, invalid, type, children, ...props }) {
   const [visible, setVisible] = useState(false);
   const { t } = useLanguage();
   const isPassword = type === 'password';
   const hasErrors = errors && errors.length > 0;
-  const inputClassName = `f${hasErrors ? ' has-error' : ''}`;
+  const inputClassName = `f${hasErrors || invalid ? ' has-error' : ''}`;
 
   return (
     <div>

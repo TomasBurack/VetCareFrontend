@@ -28,7 +28,9 @@ export function Login() {
   const fieldErrors = Object.fromEntries(
     Object.entries(byField).map(([field, messages]) => [field, tApiList(messages)]),
   );
-  const passwordErrors = [...(fieldErrors.password ?? []), ...tApiList(rest)];
+  const restErrors = tApiList(rest);
+  const passwordErrors = [...(fieldErrors.password ?? []), ...restErrors];
+  const emailInvalid = Boolean(fieldErrors.email) || restErrors.length > 0;
 
   function goToDestination(session) {
     const target = location.state?.from?.pathname ?? ROLE_HOME[session.role] ?? '/';
@@ -118,6 +120,7 @@ export function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           errors={fieldErrors.email}
+          invalid={emailInvalid}
         />
         <Field
           label={t.common.password}
