@@ -49,7 +49,7 @@ export function AdminVetForm() {
     try {
       if (isEditing) {
         const payload = { ...form };
-        if (!payload.password) delete payload.password;
+        delete payload.password;
         await veterinarianApi.update(id, payload);
         toast.success(t.adminVetForm.updated);
       } else {
@@ -121,14 +121,16 @@ export function AdminVetForm() {
             value={form.email}
             onChange={update('email')}
           />
-          <Field
-            label={t.common.tempPassword}
-            type="password"
-            required={!isEditing}
-            placeholder={isEditing ? t.common.passwordHintKeep : t.common.passwordHintNew}
-            value={form.password}
-            onChange={update('password')}
-          />
+          {!isEditing && (
+            <Field
+              label={t.common.tempPassword}
+              type="password"
+              required
+              placeholder={t.common.passwordPlaceholder}
+              value={form.password}
+              onChange={update('password')}
+            />
+          )}
 
           <div className="section-title">{t.adminVetForm.professionalData}</div>
           <div className="grid cols-2">

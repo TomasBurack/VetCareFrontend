@@ -49,7 +49,7 @@ export function SysadminAdmins() {
     try {
       if (editingId !== null) {
         const payload = { ...form };
-        if (!payload.password) delete payload.password;
+        delete payload.password;
         await sysadminApi.update(editingId, payload);
         toast.success(t.sysadminAdmins.updated);
       } else {
@@ -166,14 +166,16 @@ export function SysadminAdmins() {
               value={form.email}
               onChange={update('email')}
             />
-            <Field
-              label={t.common.tempPassword}
-              type="password"
-              required={editingId === null}
-              placeholder={editingId !== null ? t.common.passwordHintKeep : t.common.passwordHintNew}
-              value={form.password}
-              onChange={update('password')}
-            />
+            {editingId === null && (
+              <Field
+                label={t.common.tempPassword}
+                type="password"
+                required
+                placeholder={t.common.passwordPlaceholder}
+                value={form.password}
+                onChange={update('password')}
+              />
+            )}
             <Button type="submit" disabled={submitting}>
               {submitting
                 ? t.common.saving
