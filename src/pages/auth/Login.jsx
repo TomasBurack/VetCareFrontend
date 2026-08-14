@@ -4,7 +4,7 @@ import { AuthCard } from '../../components/AuthCard';
 import { Field } from '../../components/Field';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../context/useAuth';
-import { ROLE_HOME } from '../../context/roleHome';
+import { ROLE_HOME, isPathAllowedForRole } from '../../context/roleHome';
 import { ApiError } from '../../api/client';
 import { useToast } from '../../context/useToast';
 import { useLanguage } from '../../i18n/useLanguage';
@@ -33,7 +33,8 @@ export function Login() {
   const emailInvalid = Boolean(fieldErrors.email) || restErrors.length > 0;
 
   function goToDestination(session) {
-    const target = location.state?.from?.pathname ?? ROLE_HOME[session.role] ?? '/';
+    const from = location.state?.from?.pathname;
+    const target = from && isPathAllowedForRole(from, session.role) ? from : ROLE_HOME[session.role] ?? '/';
     navigate(target, { replace: true });
   }
 
